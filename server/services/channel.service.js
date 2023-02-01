@@ -27,7 +27,7 @@ class channelController{
     }
 
     async getAllByLeagueId(leagueId){
-        const channels = await Channel.find(leagueId)//TODO
+        const channels = await Channel.find({leagueId})
 
         return channels
     }

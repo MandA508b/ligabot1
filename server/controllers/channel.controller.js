@@ -1,6 +1,5 @@
 const channelService  = require('../services/channel.service')
 const ApiError = require('../errors/api.error')
-const Channel = require("../../models/chennal.model");
 
 class channelController{
     async create(req, res, next){

@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { Telegraf,Markup } = require('telegraf')
+const { Markup } = require('telegraf')
 const startServer = require('./server/index')
 const userController = require('./controllers/user.controller')
 const advertisementService = require('./server/services/advertisement.service')
@@ -7,7 +7,7 @@ const cityService = require("./server/services/city.service");
 const channelService = require('./server/services/channel.service')
 const userService = require('./server/services/user.service')
 
-const bot = new Telegraf(`${process.env.BOT_TOKEN}`)
+const bot = require('./telgram/telegram')
 
 bot.start(async (ctx) => {
 
@@ -70,7 +70,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
         const cityId = advertisements[advertisementsKey].cityId
         const cityName = await cityService.findById(cityId)
 
-        bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
+        await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
             `${advertisements[advertisementsKey].type}: ${cityName.name} USDT trc20\n` +
             `Сума: ${advertisements[advertisementsKey].total}\n` +
             `Частин: ${advertisements[advertisementsKey].rate}\n` +
@@ -87,7 +87,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
 bot.action('delete', async (ctx) => {
     const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
     await advertisementService.deleteByNumber(number)
-    ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
+    await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
 })
 
 bot.hears('Додати оголошення', async (ctx)=> {
@@ -103,6 +103,8 @@ bot.hears('Додати оголошення', async (ctx)=> {
 
 
 })
+
+
 
 startServer()
 bot.launch()

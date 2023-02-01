@@ -2,8 +2,7 @@ const advertisementService  = require('../services/advertisement.service')
 const cityService  = require('../services/city.service')
 const ApiError = require('../errors/api.error')
 const Channel = require('../../models/chennal.model')
-const {Telegraf} = require("telegraf");
-//const bot = new Telegraf(`${process.env.BOT_TOKEN}`)
+const bot = require('../../telgram/telegram')
 
 class advertisementController{
     async create(req, res, next){
@@ -18,13 +17,13 @@ class advertisementController{
             const cityName = await cityService.findById(advertisement.cityId)
             const channel = await Channel.findOne({leagueId})
 
-            // bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
-            // `${advertisement.type}: ${cityName.name} USDT trc20\n`+
-            // `Сума: ${advertisement.total}\n`+
-            // `Частин: ${advertisement.rate}\n`+
-            // `Ставка: ${advertisement.part}%\n`+
-            // `Дійсне до: ${advertisement.deadline}\n`+
-            // `${advertisement.extraInfo}`);
+            bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
+                `${advertisement.type}: ${cityName.name} USDT trc20\n`+
+                `Сума: ${advertisement.total}\n`+
+                `Частин: ${advertisement.rate}\n`+
+                `Ставка: ${advertisement.part}%\n`+
+                `Дійсне до: ${advertisement.deadline}\n`+
+                `${advertisement.extraInfo}`);
 
             return res.json({advertisement})
         }catch (e) {

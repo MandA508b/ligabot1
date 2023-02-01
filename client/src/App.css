@@ -1,0 +1,23 @@
+*, *::after, *::before{
+  margin:0;
+  padding:0;
+  box-sizing: border-box;
+}
+body{
+  overflow-x: hidden;
+
+}
+body{
+  width:100vw;
+  min-height: 100vh;
+  background: url("./static/BGmain.png") 0 0/100% 100% no-repeat;
+}
+table, input,.MuiSelect-select{
+  background: #F5F5F5 !important;
+}
+
+a{
+  font-size: 22px;
+  text-decoration: none;
+  color: inherit;
+}

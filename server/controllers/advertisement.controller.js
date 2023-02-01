@@ -3,6 +3,8 @@ const cityService  = require('../services/city.service')
 const ApiError = require('../errors/api.error')
 const Channel = require('../../models/chennal.model')
 const bot = require('../../telgram/telegram')
+const {Markup} = require("telegraf");
+const Chat = require('../../models/chat.model')
 
 class advertisementController{
     async create(req, res, next){
@@ -19,13 +21,17 @@ class advertisementController{
             const channel = await Channel.findOne({leagueId})
             console.log("channelId:",channel.channelId, '\n')
             const channelId = channel.channelId.toString()
+
             await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
                 `${advertisement.type}: ${cityName.name} USDT trc20\n`+
                 `Сума: ${advertisement.total}\n`+
                 `Частин: ${advertisement.rate}\n`+
                 `Ставка: ${advertisement.part}%\n`+
                 `Дійсне до: ${advertisement.deadline}\n`+
-                `${advertisement.extraInfo}`);
+                `${advertisement.extraInfo}`,
+                Markup.inlineKeyboard([
+                Markup.button.webApp('Написати', `https://main--voluble-pegasus-6a9597.netlify.app/advertisementId=${advertisement._id}&customerId=${userId}`),
+            ]));
 
             return res.json({advertisement})
         }catch (e) {

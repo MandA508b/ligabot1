@@ -9,15 +9,17 @@ class advertisementController{
         try{
             const {userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo} = req.body
             if(!userId || !leagueId || !type ||! cityId || !total || !rate || !deadline){
-                console.log(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
+               // console.log(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
                 return next(ApiError.badRequest('!name || !userId || !type ||! cityId || !total || !rate || !deadline'))
             }
             const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
 
             const cityName = await cityService.findById(advertisement.cityId)
+            console.log({cityName}, '\n')
             const channel = await Channel.findOne({leagueId})
-
-            bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
+            console.log("channelId:",channel.channelId, '\n')
+            const channelId = channel.channelId.toString()
+            await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
                 `${advertisement.type}: ${cityName.name} USDT trc20\n`+
                 `Сума: ${advertisement.total}\n`+
                 `Частин: ${advertisement.rate}\n`+

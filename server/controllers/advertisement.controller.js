@@ -22,6 +22,8 @@ class advertisementController{
             console.log("channelId:",channel.channelId, '\n')
             const channelId = channel.channelId.toString()
 
+            console.log(advertisement._id.toString(), ' ', userId)
+
             await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
                 `${advertisement.type}: ${cityName.name} USDT trc20\n`+
                 `Сума: ${advertisement.total}\n`+
@@ -30,8 +32,9 @@ class advertisementController{
                 `Дійсне до: ${advertisement.deadline}\n`+
                 `${advertisement.extraInfo}`,
                 Markup.inlineKeyboard([
-                Markup.button.webApp('Написати', `https://main--voluble-pegasus-6a9597.netlify.app/advertisementId=${advertisement._id}&customerId=${userId}`),
-            ]));
+                    Markup.button.url('Написати', 'https://main--voluble-pegasus-6a9597.netlify.app')
+                ])
+        );
 
             return res.json({advertisement})
         }catch (e) {

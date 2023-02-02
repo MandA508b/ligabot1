@@ -28,10 +28,8 @@ class advertisementController{
                 `Частин: ${advertisement.rate}\n`+
                 `Ставка: ${advertisement.part}%\n`+
                 `Дійсне до: ${advertisement.deadline}\n`+
-                `${advertisement.extraInfo}`,
-                Markup.inlineKeyboard([
-                Markup.button.webApp('Написати', `https://main--voluble-pegasus-6a9597.netlify.app/advertisementId=${advertisement._id}&customerId=${userId}`),
-            ]));
+                `${advertisement.extraInfo}`
+                );
 
             return res.json({advertisement})
         }catch (e) {

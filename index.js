@@ -8,7 +8,7 @@ const channelService = require('./server/services/channel.service')
 const userService = require('./server/services/user.service')
 const chatService = require('./server/services/chat.service')
 const bot = require('./telgram/telegram')
-const ChatData = require("./server/services/chatData.service");
+const chatDataService = require("./server/services/chatData.service");
 
 
 async function menu(ctx){
@@ -109,7 +109,17 @@ bot.action('1', async (ctx)=> {
     const userCustomer = await userService.getUserById(advertisement.userId)
 
     const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id)
-    const chatData = await ChatData.create((chat.room, "Admin", advertisement.text))
+
+    {
+        const cityName = await cityService.findById(advertisement.cityId)
+        let chatData = await chatDataService.create(chat.room, "Admin", `Оголошення №${advertisement.number}`)
+        chatData = await chatDataService.create(chat.room, "Admin", `${advertisement.type}: ${advertisement.total}USDT trc20`)
+        chatData = await chatDataService.create(chat.room, "Admin", `Місто: ${cityName.name}`)
+        chatData = await chatDataService.create(chat.room, "Admin", `Частин: ${advertisement.part}`)
+        chatData = await chatDataService.create(chat.room, "Admin", `Ставка: ${advertisement.rate}%`)
+        chatData = await chatDataService.create(chat.room, "Admin", `Дійсне до: ${advertisement.deadline}`)
+
+    }
 
     await ctx.telegram.sendMessage(userClient.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
         Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),

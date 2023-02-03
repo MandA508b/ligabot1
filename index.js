@@ -9,15 +9,8 @@ const userService = require('./server/services/user.service')
 
 const bot = require('./telgram/telegram')
 
-bot.start(async (ctx) => {
-
-    const registration = await userController.start(ctx.update.message.from)
-    if(registration)
-        ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!")
-    else
-        ctx.reply("Ви вже зареєстровані!")
-
-    return await ctx.reply('menu:', Markup
+async function menu(ctx){
+    await ctx.reply('menu:', Markup
         .keyboard([
             ['Додати оголошення', 'Мої оголошення'],
             ['Канали']
@@ -25,10 +18,20 @@ bot.start(async (ctx) => {
         .oneTime()
         .resize()
     )
+}
+
+bot.start(async (ctx) => {
+    await menu(ctx)
+    const registration = await userController.start(ctx.update.message.from)
+    if(registration)
+        ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!")
+    else
+        ctx.reply("Ви вже зареєстровані!")
 })
 
 
 bot.hears('Канали', async (ctx)=>{
+    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -45,6 +48,7 @@ bot.hears('Канали', async (ctx)=>{
 })
 
 bot.hears('Мої оголошення', async (ctx)=> {
+    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -58,8 +62,8 @@ bot.hears('Мої оголошення', async (ctx)=> {
         const cityName = await cityService.findById(cityId)
 
         await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
-            `${advertisements[advertisementsKey].type}: ${cityName.name} USDT trc20\n` +
-            `Сума: ${advertisements[advertisementsKey].total}\n` +
+            `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
+            `Місто: ${cityName.name}\n` +
             `Частин: ${advertisements[advertisementsKey].rate}\n` +
             `Ставка: ${advertisements[advertisementsKey].part}%\n` +
             `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
@@ -72,12 +76,14 @@ bot.hears('Мої оголошення', async (ctx)=> {
 })
 
 bot.action('delete', async (ctx) => {
+    await menu(ctx)
     const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
     await advertisementService.deleteByNumber(number)
     await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
 })
 
 bot.hears('Додати оголошення', async (ctx)=> {
+    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){

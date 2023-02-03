@@ -30,7 +30,7 @@ class advertisementController{
     }
 
     async getAllByTelegramId(telegramId){
-        const user = await userService.getUserByTelegramID(telegramId)
+        const user = await userService.getUserByTelegramId(telegramId)
         const advertisements = await Advertisement.find({userId: user._id})
 
         return advertisements

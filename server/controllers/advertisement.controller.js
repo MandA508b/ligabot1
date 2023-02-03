@@ -1,10 +1,9 @@
 const advertisementService  = require('../services/advertisement.service')
 const cityService  = require('../services/city.service')
 const ApiError = require('../errors/api.error')
-const Channel = require('../../models/chennal.model')
 const bot = require('../../telgram/telegram')
 const {Markup} = require("telegraf");
-const Chat = require('../../models/chat.model')
+const channelService =require('../services/channel.service')
 
 class advertisementController{
     async create(req, res, next){
@@ -16,25 +15,24 @@ class advertisementController{
             }
             const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
 
-            const cityName = await cityService.findById(advertisement.cityId)
-            console.log({cityName}, '\n')
-            const channel = await Channel.findOne({leagueId})
-            console.log("channelId:",channel.channelId, '\n')
-            const channelId = channel.channelId.toString()
+            const channel = await channelService.getByLeagueId({leagueId})
 
-            console.log(advertisement._id.toString(), ' ', userId)
+            if(channel){
+                const cityName = await cityService.findById(advertisement.cityId)
 
-            await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
-                `${advertisement.type}: ${cityName.name} USDT trc20\n`+
-                `Сума: ${advertisement.total}\n`+
-                `Частин: ${advertisement.rate}\n`+
-                `Ставка: ${advertisement.part}%\n`+
-                `Дійсне до: ${advertisement.deadline}\n`+
-                `${advertisement.extraInfo}`,
-                Markup.inlineKeyboard([
-                    Markup.button.url('Написати', 'https://main--voluble-pegasus-6a9597.netlify.app')
-                ])
-        );
+                const channelId = channel.channelId.toString()
+                await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
+                    `${advertisement.type}: ${advertisement.total} USDT trc20\n`+
+                    `Місто: ${cityName.name}\n`+
+                    `Частин: ${advertisement.rate}\n`+
+                    `Ставка: ${advertisement.part}%\n`+
+                    `Дійсне до: ${advertisement.deadline}\n`+
+                    `${advertisement.extraInfo}`,
+                    Markup.inlineKeyboard([
+                        Markup.button.url('Написати', 'https://main--voluble-pegasus-6a9597.netlify.app')
+                    ])
+                );
+            }
 
             return res.json({advertisement})
         }catch (e) {

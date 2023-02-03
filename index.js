@@ -109,11 +109,11 @@ bot.action('1', async (ctx)=> {
     const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id)
 
     await ctx.telegram.sendMessage(userClient.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
-        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&id=${advertisement._id}`),
+        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),
     ]))
 
     await ctx.telegram.sendMessage(userCustomer.telegramId, `Хтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([
-        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}&id=${advertisement._id}`),
+        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`),
     ]))
     await ctx.telegram.sendMessage(userClient.telegramId,'menu:', Markup
         .keyboard([

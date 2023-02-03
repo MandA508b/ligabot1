@@ -6,7 +6,7 @@ const advertisementService = require('./server/services/advertisement.service')
 const cityService = require("./server/services/city.service");
 const channelService = require('./server/services/channel.service')
 const userService = require('./server/services/user.service')
-
+const chatService = require('./server/services/chat.service')
 const bot = require('./telgram/telegram')
 
 async function menu(ctx){
@@ -69,7 +69,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
             `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
             `${advertisements[advertisementsKey].extraInfo}`,
             Markup.inlineKeyboard([
-                Markup.button.webApp('Редагувати', `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
+                Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
                 Markup.button.callback('Скасувати', 'delete')
             ]))
     }
@@ -97,6 +97,26 @@ bot.hears('Додати оголошення', async (ctx)=> {
 
 })
 
+bot.action('1', async (ctx)=> {
+    const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
+    const advertisement = await advertisementService.getByNumber(number)
+
+    if(!advertisement)return ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!")
+
+    const userClient = await userService.getUserByTelegramId(ctx.update.callback_query.from.id)
+    const userCustomer = await userService.getUserById(advertisement.userId)
+
+    const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id)
+
+    await ctx.telegram.sendMessage(userCustomer.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
+        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),
+    ]))
+
+    await ctx.telegram.sendMessage(userCustomer.telegramId, `Хтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([
+        Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`),
+    ]))
+    ctx.reply('1')
+})
 
 
 startServer()

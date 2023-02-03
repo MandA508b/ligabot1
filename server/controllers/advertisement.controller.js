@@ -29,7 +29,7 @@ class advertisementController{
                     `Дійсне до: ${advertisement.deadline}\n`+
                     `${advertisement.extraInfo}`,
                     Markup.inlineKeyboard([
-                        Markup.button.url('Написати', `${process.env.CHAT_URL}`)
+                        Markup.button.callback('Написати', `1`)
                     ])
                 );
             }

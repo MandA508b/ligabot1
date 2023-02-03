@@ -2,12 +2,13 @@ const Chat = require('../../models/chat.model')
 
 class chatController{
 
-    async create(advertisementId, customerId, clientId){
+        async create(advertisementId, customerId, clientId){
         const candidate = await Chat.findOne({advertisementId, customerId, clientId})
         if(candidate){
             return candidate
         }
-        const chat = await Chat.create({advertisementId, customerId, clientId})
+        const room = "" + advertisementId + customerId + clientId
+        const chat = await Chat.create({advertisementId, customerId, clientId, room})
 
         return chat
     }

@@ -12,6 +12,10 @@ const schema = new db.Schema({
     clientId: {
         type: db.Schema.Types.ObjectId,
         required: true
+    },
+    room: {
+        type: String,
+        required: true
     }
 })
 

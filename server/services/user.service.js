@@ -30,6 +30,12 @@ class UserController{// userData: [{userId: _id, updateData: {..data to update..
         return user
     }
 
+    async getUserById(userId){
+        const user = await User.findById(userId)
+
+        return user
+    }
+
 
 }
 

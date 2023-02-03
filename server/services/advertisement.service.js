@@ -45,6 +45,13 @@ class advertisementController{
         await Advertisement.deleteOne({number})
     }
 
+    async getByNumber(number){
+        const advertisementawait = await Advertisement.findOne({number})
+
+        return advertisementawait
+    }
+
+
 }
 
 module.exports = new advertisementController()

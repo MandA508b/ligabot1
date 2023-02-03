@@ -15,7 +15,7 @@ class advertisementController{
             }
             const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
 
-            const channel = await channelService.getByLeagueId({leagueId})
+            const channel = await channelService.getByLeagueId(leagueId)
 
             if(channel){
                 const cityName = await cityService.findById(advertisement.cityId)
@@ -29,7 +29,7 @@ class advertisementController{
                     `Дійсне до: ${advertisement.deadline}\n`+
                     `${advertisement.extraInfo}`,
                     Markup.inlineKeyboard([
-                        Markup.button.url('Написати', 'https://main--voluble-pegasus-6a9597.netlify.app')
+                        Markup.button.url('Написати', `${process.env.CHAT_URL}`)
                     ])
                 );
             }

@@ -1,9 +1,10 @@
 const User = require('../../models/user.model')
+const teamService = require('../services/team.service')
 
 class UserController{// userData: [{userId: _id, updateData: {..data to update..}}, ...]
 
     async getAllUsers(){
-        const users = await User.find()//TODO: one or many?
+        const users = await User.find()
 
         return users
     }
@@ -11,7 +12,13 @@ class UserController{// userData: [{userId: _id, updateData: {..data to update..
     async updateUsers(userData){
         let users = []
         for (let userDataKey in userData) {
-            users.push(await User.findOneAndUpdate({_id: userData[userDataKey].userId}, userData[userDataKey].updateData))
+            if(userData[userDataKey].updateData.teamId){
+                const team = await teamService.findTeamById(userData[userDataKey].updateData.teamId)
+                users.push(await User.findOneAndUpdate({_id: userData[userDataKey].userId}, {...userData[userDataKey].updateData, leagueId: team.leagueId}))
+            }else{
+                users.push(await User.findOneAndUpdate({_id: userData[userDataKey].userId}, userData[userDataKey].updateData))
+            }
+
         }
 
         return users
@@ -23,11 +30,6 @@ class UserController{// userData: [{userId: _id, updateData: {..data to update..
         return user
     }
 
-    async getUserByTelegramID(telegramId){
-        const user = await User.findOne({telegramId})
-
-        return user
-    }
 
 }
 

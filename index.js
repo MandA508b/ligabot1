@@ -16,37 +16,23 @@ bot.start(async (ctx) => {
         ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!")
     else
         ctx.reply("Ви вже зареєстровані!")
-    ctx.reply('Спробуйте ввести /menu')
 
+    return await ctx.reply('menu:', Markup
+        .keyboard([
+            ['Додати оголошення', 'Мої оголошення'],
+            ['Канали']
+        ])
+        .oneTime()
+        .resize()
+    )
 })
 
-bot.command('menu', async (ctx) => {
-    const userAuth =  await userService.getUserByTelegramID(ctx.update.message.from.id)
-    if(userAuth.isBlocked){
-        return ctx.reply('Вас заблоковано')
-    }
-
-    const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
-
-
-    if(accessToMenu){
-        return await ctx.reply('menu:', Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення'],
-                ['Канали']
-            ])
-            .oneTime()
-            .resize()
-        )
-    }
-
-
-})
 
 bot.hears('Канали', async (ctx)=>{
-    const userAuth =  await userService.getUserByTelegramID(ctx.update.message.from.id)
-    if(userAuth.isBlocked){
-        return ctx.reply('Вас заблоковано')
+    const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
+    const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+    if(userAuth.isBlocked || !accessToMenu){
+        return ctx.reply('У вас немає доступу!')
     }
 
     const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
@@ -59,9 +45,10 @@ bot.hears('Канали', async (ctx)=>{
 })
 
 bot.hears('Мої оголошення', async (ctx)=> {
-    const userAuth =  await userService.getUserByTelegramID(ctx.update.message.from.id)
-    if(userAuth.isBlocked){
-        return ctx.reply('Вас заблоковано')
+    const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
+    const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+    if(userAuth.isBlocked || !accessToMenu){
+        return ctx.reply('У вас немає доступу!')
     }
 
     const advertisements = await advertisementService.getAllByTelegramId(ctx.update.message.from.id)
@@ -78,7 +65,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
             `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
             `${advertisements[advertisementsKey].extraInfo}`,
             Markup.inlineKeyboard([
-                Markup.button.webApp('Редагувати', `https://heroic-profiterole-cc695c.netlify.app/redact/${advertisements[advertisementsKey]._id}`),
+                Markup.button.webApp('Редагувати', `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
                 Markup.button.callback('Скасувати', 'delete')
             ]))
     }
@@ -91,16 +78,16 @@ bot.action('delete', async (ctx) => {
 })
 
 bot.hears('Додати оголошення', async (ctx)=> {
-    const userAuth =  await userService.getUserByTelegramID(ctx.update.message.from.id)
-    if(userAuth.isBlocked){
-        return ctx.reply('Вас заблоковано')
+    const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
+    const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+    if(userAuth.isBlocked || !accessToMenu){
+        return ctx.reply('У вас немає доступу!')
     }
 
     ctx.reply('Заповніть форму: ',
         Markup.inlineKeyboard([
-            Markup.button.webApp('Заповнити', 'https://heroic-profiterole-cc695c.netlify.app')
+            Markup.button.webApp('Заповнити', `${process.env.ADVERTISEMENT_CREATE_URL}`)
         ]))
-
 
 })
 

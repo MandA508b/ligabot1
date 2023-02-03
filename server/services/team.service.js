@@ -4,7 +4,7 @@ const User = require("../../models/user.model");
 class teamController{
 
     async findByLeagueId(leagueId){
-        const teams = Team.findAll({leagueId})
+        const teams = Team.find({leagueId})
         return teams
     }
     async findTeamsByLeagueId(leagueId){

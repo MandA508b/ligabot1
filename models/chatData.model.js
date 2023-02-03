@@ -12,6 +12,10 @@ const schema = new db.Schema({
     messageText: {
         type: String,
         required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now()
     }
 })
 

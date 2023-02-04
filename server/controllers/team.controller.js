@@ -94,6 +94,16 @@ class teamController{
         }
     }
 
+    async findAllStatusTrue(req, res, next){
+        try{
+            const teams = await teamService.findAllStatusTrue()
+
+            return res.json({teams})
+        }catch (e) {
+            next(e)
+        }
+    }
+
 }
 
 module.exports = new teamController()

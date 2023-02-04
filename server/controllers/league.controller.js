@@ -36,9 +36,9 @@ class leagueController{
             if(!leagueId){
                 return next(ApiError.badRequest('!leagueId'))
             }
-            const team = await leagueService.delete( leagueId)
+            const league = await leagueService.delete( leagueId)
 
-            return res.json({team})
+            return res.json({league})
         }catch (e) {
             next(e)
         }
@@ -50,9 +50,9 @@ class leagueController{
             if(!leagueId || !data){
                 return next(ApiError.badRequest('!leagueId || !data'))
             }
-            const team = await leagueService.redact(leagueId, data)
+            const league = await leagueService.redact(leagueId, data)
 
-            return res.json({team})
+            return res.json({league})
         }catch (e) {
             next(e)
         }
@@ -60,9 +60,19 @@ class leagueController{
 
     async findAll(req, res, next){
         try{
-            const teams = await leagueService.findAll()
+            const leagues = await leagueService.findAll()
 
-            return res.json({teams})
+            return res.json({leagues})
+        }catch (e) {
+            next(e)
+        }
+    }
+
+    async findAllStatusTrue(req, res, next){
+        try{
+            const leagues = await leagueService.findAllStatusTrue()
+
+            return res.json({leagues})
         }catch (e) {
             next(e)
         }

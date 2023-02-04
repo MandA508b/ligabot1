@@ -34,6 +34,13 @@ class leagueController{// userData: [{userId: _id, updateData: {..data to update
 
         return leagues
     }
+
+    async findAllStatusTrue(){
+        const leagues = await League.find({status: true})
+
+        return leagues
+    }
+
 }
 
 module.exports = new leagueController()

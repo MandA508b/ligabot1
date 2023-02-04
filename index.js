@@ -152,9 +152,7 @@ bot.hears('Мої чати', async (ctx)=>{
     if(customerChats.length)    await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали вам :")
 
     for (let chatsKey in customerChats) {
-        console.log(chatsKey)
         const advertisement = await advertisementService.getById(customerChats[chatsKey].advertisementId)
-        console.log(advertisement)
         await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
             Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${customerChats[chatsKey].room}`)]))
     }

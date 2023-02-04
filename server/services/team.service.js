@@ -40,6 +40,12 @@ class teamController{
         return teams
     }
 
+    async findAllStatusTrue(){
+        const teams = await Team.find({status: true})
+
+        return teams
+    }
+
 }
 
 module.exports = new teamController()

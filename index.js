@@ -169,5 +169,5 @@ bot.hears('Мої чати', async (ctx)=>{
     }
 })
 
-startServer()
+// startServer()
 bot.launch()

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const { Markup } = require('telegraf')
-const startServer = require('./server/index')
+// const startServer = require('./server/index')
 const userController = require('./controllers/user.controller')
 const advertisementService = require('./server/services/advertisement.service')
 const cityService = require("./server/services/city.service");

@@ -1,6 +1,6 @@
 const Chat = require('../../models/chat.model')
 
-class chatController{
+class chatService{
 
         async create(advertisementId, customerId, clientId){
         const candidate = await Chat.findOne({advertisementId, customerId, clientId})
@@ -31,11 +31,17 @@ class chatController{
         return chat
     }
 
-    async getAllByUserId(userId){
-        const chats = await Chat.findOne(userId)
+    async getAllByCustomerId(userId){
+        const chats = await Chat.find({ customerId: userId})
+
+        return chats
+    }
+
+    async getAllByClientId(userId){
+        const chats = await Chat.find({ clientId: userId})
 
         return chats
     }
 }
 
-module.exports = new chatController()
+module.exports = new chatService()

@@ -147,12 +147,25 @@ bot.hears('Мої чати', async (ctx)=>{
         return ctx.reply('У вас немає доступу!')
     }
 
-    ctx.reply("Ваші чати: ")
-    const chats = await chatService.getAllByUserId(ctx.update.message.from.id)
-    for (let chatsKey in chats) {
-        const advertisement = await advertisementService.getById(chats[chatsKey].advertisementId)
+    const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
+    const customerChats = await chatService.getAllByCustomerId(user._id)
+    if(customerChats.length)    await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали вам :")
+
+    for (let chatsKey in customerChats) {
+        console.log(chatsKey)
+        const advertisement = await advertisementService.getById(customerChats[chatsKey].advertisementId)
+        console.log(advertisement)
         await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
-            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${chats[chatsKey].room}`)]))
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${customerChats[chatsKey].room}`)]))
+    }
+
+    const clientChats = await chatService.getAllByClientId(user._id)
+    if(clientChats.length)    await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали ви :")
+
+    for (let chatsKey in clientChats) {
+        const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
+        await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)]))
     }
 })
 

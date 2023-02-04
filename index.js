@@ -15,7 +15,7 @@ async function menu(ctx){
     await ctx.reply('menu:', Markup
         .keyboard([
             ['Додати оголошення', 'Мої оголошення'],
-            ['Канали']
+            ['Канали', 'Мої чати']
         ])
         .oneTime()
         .resize()
@@ -131,7 +131,7 @@ bot.action('1', async (ctx)=> {
     await ctx.telegram.sendMessage(userClient.telegramId,'menu:', Markup
         .keyboard([
             ['Додати оголошення', 'Мої оголошення'],
-            ['Канали']
+            ['Канали', 'Мої чати']
         ])
         .oneTime()
         .resize()
@@ -139,6 +139,22 @@ bot.action('1', async (ctx)=> {
 
 })
 
+bot.hears('Мої чати', async (ctx)=>{
+    await menu(ctx)
+    const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
+    const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+    if(userAuth.isBlocked || !accessToMenu){
+        return ctx.reply('У вас немає доступу!')
+    }
+
+    ctx.reply("Ваші чати: ")
+    const chats = await chatService.getAllByUserId(ctx.update.message.from.id)
+    for (let chatsKey in chats) {
+        const advertisement = await advertisementService.getById(chats[chatsKey].advertisementId)
+        await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${chats[chatsKey].room}`)]))
+    }
+})
 
 startServer()
 bot.launch()

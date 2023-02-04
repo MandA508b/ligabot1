@@ -25,12 +25,17 @@ class chatController{
         return chats
     }
 
-    async getByUserId(chatId){
-        const chat = await Chat.findOne({chatId})
+    async getByUserId(userId){
+        const chat = await Chat.findOne({userId})
 
         return chat
     }
 
+    async getAllByUserId(userId){
+        const chats = await Chat.findOne(userId)
+
+        return chats
+    }
 }
 
 module.exports = new chatController()

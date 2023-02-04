@@ -21,12 +21,7 @@ const LeagueRow = ({league, isSelected}) => {
             res.data.teams.forEach((team, i) => teams += i ? ', ' + team.name : '' + team.name)
             setTeams(teams)
         }
-        const fetchChannelId = async () => {
-            const res = await getByLeagueId({leagueId: league._id})
-            console.log(res)
-            setChannelId(res.data.channel.URL)
-        }
-        fetchChannelId()
+
         getTeams()
 
     }, [])
@@ -36,7 +31,6 @@ const LeagueRow = ({league, isSelected}) => {
             <TableCell align="center">{league.name}</TableCell>
             <TableCell align="center">{league.level}</TableCell>
             <TableCell align="center">{league.status ? "Опублікований" : 'Не Опублікований'}</TableCell>
-            <TableCell align="center">{channelId}</TableCell>
             <TableCell align="center">{teams}</TableCell>
         </TableRow>
     );

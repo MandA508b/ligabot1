@@ -14,7 +14,7 @@ import Checkbox from '@mui/material/Checkbox';
 import UserRow from "../components/UserRow";
 import {useFetchAllUsersQuery, useUpdateUsersMutation} from "../redux/users/usersApiSlice";
 import React, {useEffect, useState} from "react";
-import {useFetchAllTeamsQuery} from "../redux/teams/teamsApiSlice";
+import {useFetchAllTrueTeamsQuery} from "../redux/teams/teamsApiSlice";
 import {selectCurrentTeams, setTeams} from "../redux/teams/teamsSlice";
 import {selectCurrentLeagues, setLeagues} from "../redux/leagues/leaguesSlice";
 import {useFetchAllLeaguesQuery} from "../redux/leagues/leaguesApiSlice";
@@ -22,21 +22,15 @@ function refreshPage() {
     window.location.reload(false);
 }
 function Users() {
-    const {data:leagueData, isSuccess:leagueIsSuccess, isLoading:leagueIsLoading} = useFetchAllLeaguesQuery()
 
-    useEffect(() => {
-        if (leagueIsSuccess) {
-            dispatch(setLeagues(leagueData.teams))
-            console.log(leagueData.teams)
-        }
-    }, [leagueData])
-    const {data:teamData, isSuccess:isTeamSuccess, isLoading:isTeamLoading} = useFetchAllTeamsQuery()
-    const teams = useSelector(selectCurrentTeams)
+
+    const {data:teamData, isSuccess:isTeamSuccess, isLoading:isTeamLoading} = useFetchAllTrueTeamsQuery()
+    const [teams, setTeams] = useState([])
     const leagues = useSelector(selectCurrentLeagues)
 
     useEffect(() => {
         if (isTeamSuccess) {
-            dispatch(setTeams(teamData.teams))
+            setTeams(teamData.teams)
             console.log(teamData.teams)
         }
 
@@ -81,17 +75,7 @@ function Users() {
         await updateUsers({userData})
         refreshPage()
     }
-    const handleChangeLeague = async (e) => {
-        let userData = []
-        selectedUsers.forEach(id => {
-            const user = users.find(user => user._id === id)
-            userData.push({userId: user._id, updateData: {...user, leagueId: e.target.value}})
-        })
-        await updateUsers({userData})
-        refreshPage()
-
-
-    }
+   
     const handleBlock = async (e) => {
         let userData = []
         selectedUsers.forEach(id => {
@@ -153,20 +137,7 @@ function Users() {
                             </Stack>
 
                         </ListItem>
-                        <ListItem>
-                            <Stack>
-                                <Typography fontSize={10} color={'grey'}>Select New League</Typography>
-                                <Select defaultValue={''} sx={{width: "120px"}}
-                                        onChange={handleChangeLeague}>
-                                    {
-                                        leagues?.map(league =>
-                                            <MenuItem key={league._id} value={league._id}>{league.name}</MenuItem>
-                                        )
-                                    }
-                                </Select>
-
-                            </Stack>
-                        </ListItem>
+                        
                         <ListItem>
                             <Stack>
                                 <Typography fontSize={10} color={'grey'}>Select New Team</Typography>

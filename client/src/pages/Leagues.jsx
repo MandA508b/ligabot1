@@ -39,8 +39,8 @@ const Leagues = () => {
     useEffect(() => {
         if (isSuccess) {
             console.log(data)
-            dispatch(setLeagues(data.teams))
-            console.log(data.teams)
+            dispatch(setLeagues(data.leagues))
+            console.log(data.leagues)
         }
 
     }, [data])
@@ -136,7 +136,6 @@ const Leagues = () => {
                             <TableCell variant={'head'} size={'small'} align="center">Name</TableCell>
                             <TableCell variant={'head'} size={'small'} align="center">Level</TableCell>
                             <TableCell variant={'head'} size={'small'} align="center">Status</TableCell>
-                            <TableCell variant={'head'} size={'small'} align="center">Channel URL</TableCell>
                             <TableCell variant={'head'} size={'small'} align="center">Teams</TableCell>
                         </TableRow>
 

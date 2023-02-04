@@ -25,7 +25,7 @@ import {
 } from "../redux/teams/teamsSlice";
 import Checkbox from "@mui/material/Checkbox";
 import TeamRow from "../components/TeamRow";
-import {useFetchAllLeaguesQuery} from "../redux/leagues/leaguesApiSlice";
+import {useFetchAllTrueLeaguesQuery} from "../redux/leagues/leaguesApiSlice";
 import {selectCurrentLeagues, setLeagues} from "../redux/leagues/leaguesSlice";
 
 function refreshPage() {
@@ -38,11 +38,11 @@ const Teams = () => {
 
 
     const {data, isSuccess, isLoading} = useFetchAllTeamsQuery()
-    const {data: leaguesData, isSuccess: isLeaguesSuccess, isLoading: isLeaguesLoading} = useFetchAllLeaguesQuery()
+    const {data: leaguesData, isSuccess: isLeaguesSuccess, isLoading: isLeaguesLoading} = useFetchAllTrueLeaguesQuery()
     const dispatch = useDispatch()
     const teams = useSelector(selectCurrentTeams)
     const selectedTeams = useSelector(selectedTeamsId)
-    const leagues = useSelector(selectCurrentLeagues)
+    const [leagues,setLeagues] = useState([])
     const [leagueId, setLeagueId] = useState('')
     const selectAllTeams = () => dispatch(setAllSelectedTeams())
     useEffect(() => {
@@ -54,7 +54,8 @@ const Teams = () => {
     }, [data])
     useEffect(() => {
         if (isLeaguesSuccess) {
-            dispatch(setLeagues(leaguesData.teams))
+            setLeagues(leaguesData.leagues)
+            console.log(leaguesData.leagues)
         }
     })
     const [updateTeam] = useUpdateTeamMutation()

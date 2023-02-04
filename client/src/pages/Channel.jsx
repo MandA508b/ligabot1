@@ -25,7 +25,7 @@ import {
 } from "../redux/channel/channelSlice";
 import Checkbox from "@mui/material/Checkbox";
 import ChannelRow from "../components/ChannelRow";
-import {useFetchAllLeaguesQuery} from "../redux/leagues/leaguesApiSlice";
+import {useFetchAllTrueLeaguesQuery} from "../redux/leagues/leaguesApiSlice";
 import {selectCurrentLeagues, setLeagues} from "../redux/leagues/leaguesSlice";
 
 function refreshPage() {
@@ -36,12 +36,12 @@ const Channel = () => {
     const [channelId, setChannelId] = useState("")
     const [url,setUrl] = useState('')
     const [number, setNumber] = useState(1)
-    const {data: leaguesData, isSuccess: isLeaguesSuccess, isLoading: isLeaguesLoading} = useFetchAllLeaguesQuery()
-    const leagues = useSelector(selectCurrentLeagues)
+    const {data: leaguesData, isSuccess: isLeaguesSuccess, isLoading: isLeaguesLoading} = useFetchAllTrueLeaguesQuery()
+    const [leagues,setLeagues] = useState([])
     const [leagueId, setLeagueId] = useState('')
     useEffect(() => {
         if (isLeaguesSuccess) {
-            dispatch(setLeagues(leaguesData.teams))
+            setLeagues(leaguesData.leagues)
         }
     })
     const {data, isSuccess, isLoading} = useFetchAllChannelQuery()

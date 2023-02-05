@@ -10,20 +10,9 @@ const chatService = require('./server/services/chat.service')
 const bot = require('./telgram/telegram')
 const chatDataService = require("./server/services/chatData.service");
 
-
-async function menu(ctx){
-    await ctx.reply('menu:', Markup
-        .keyboard([
-            ['Додати оголошення', 'Мої оголошення'],
-            ['Канали', 'Мої чати']
-        ])
-        .oneTime()
-        .resize()
-    )
-}
+bot.telegram.setMyCommands( [{ command: 'menu', description: 'Open menu buttons' }, { command: 'start', description: 'Start the bot' }])
 
 bot.start(async (ctx) => {
-    await menu(ctx)
     const registration = await userController.start(ctx.update.message.from)
     if(registration)
         ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!")
@@ -33,7 +22,6 @@ bot.start(async (ctx) => {
 
 
 bot.hears('Канали', async (ctx)=>{
-    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -50,7 +38,6 @@ bot.hears('Канали', async (ctx)=>{
 })
 
 bot.hears('Мої оголошення', async (ctx)=> {
-    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -78,14 +65,12 @@ bot.hears('Мої оголошення', async (ctx)=> {
 })
 
 bot.action('delete', async (ctx) => {
-    await menu(ctx)
     const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
     await advertisementService.deleteByNumber(number)
     await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
 })
 
 bot.hears('Додати оголошення', async (ctx)=> {
-    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -128,19 +113,10 @@ bot.action('1', async (ctx)=> {
     await ctx.telegram.sendMessage(userCustomer.telegramId, `Хтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([
         Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`),
     ]))
-    await ctx.telegram.sendMessage(userClient.telegramId,'menu:', Markup
-        .keyboard([
-            ['Додати оголошення', 'Мої оголошення'],
-            ['Канали', 'Мої чати']
-        ])
-        .oneTime()
-        .resize()
-    )
 
 })
 
 bot.hears('Мої чати', async (ctx)=>{
-    await menu(ctx)
     const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
     const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
     if(userAuth.isBlocked || !accessToMenu){
@@ -166,6 +142,19 @@ bot.hears('Мої чати', async (ctx)=>{
             Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)]))
     }
 })
+
+bot.hears('/menu', async (ctx)=>{
+    await ctx.reply('menu:', Markup
+        .keyboard([
+            ['Додати оголошення', 'Мої оголошення'],
+            ['Канали', 'Мої чати']
+        ])
+        .oneTime()
+        .resize()
+    )
+})
+
+console.log((new Date(Date.now()+60*2*60*1000)).toString())
 
 startServer()
 bot.launch()

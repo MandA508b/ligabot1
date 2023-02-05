@@ -3,7 +3,7 @@ const db= require('../db/db')
 const schema = new db.Schema({
     status: {
         type: Boolean,
-        default: false
+        default: true
     },
     number: {
         type: Number,

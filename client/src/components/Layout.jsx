@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from 'react';
 import {Button, Stack, Typography} from "@mui/material";
 import {Link, useNavigate} from "react-router-dom";

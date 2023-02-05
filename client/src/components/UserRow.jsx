@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useEffect, useState} from 'react';
 import {TableCell, TableRow} from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";

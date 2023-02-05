@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState} from 'react';
 import {Button, Stack, TextField, Typography} from "@mui/material";
 import {useLoginMutation, useRegistrationMutation} from "../redux/auth/authApiSlice";

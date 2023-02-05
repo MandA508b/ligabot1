@@ -1,5 +1,5 @@
-const {Telegraf} = require('telegraf')
+const telegraf = require('telegraf')
 
-const bot = new Telegraf(`${process.env.BOT_TOKEN}`)
+const bot = new telegraf.Telegraf(`${process.env.BOT_TOKEN}`)
 
 module.exports = bot

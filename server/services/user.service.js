@@ -14,9 +14,11 @@ class UserController{// userData: [{userId: _id, updateData: {..data to update..
         for (let userDataKey in userData) {
             if(userData[userDataKey].updateData.teamId){
                 const team = await teamService.findTeamById(userData[userDataKey].updateData.teamId)
-                users.push(await User.findOneAndUpdate({_id: userData[userDataKey].userId}, {...userData[userDataKey].updateData, leagueId: team.leagueId}))
+                const user = await User.findOneAndUpdate({_id: userData[userDataKey].userId}, {...userData[userDataKey].updateData, leagueId: team.leagueId})
+                users.push(user)
             }else{
-                users.push(await User.findOneAndUpdate({_id: userData[userDataKey].userId}, userData[userDataKey].updateData))
+                const user = await User.findOneAndUpdate({_id: userData[userDataKey].userId}, userData[userDataKey].updateData)
+                users.push(user)
             }
 
         }

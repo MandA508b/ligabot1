@@ -120,6 +120,8 @@ const Teams = () => {
                         </ListItem>
 
                         <ListItem>
+                        <Stack>
+                            <Typography fontSize={10} color={'grey'}>Status</Typography>
                             <Select defaultValue={''} sx={{width: '200px'}}
                                     onChange={(e) => handlePublish(e.target.value)}>
                                 <MenuItem value={false}>
@@ -129,6 +131,7 @@ const Teams = () => {
                                     Опублікований
                                 </MenuItem>
                             </Select>
+                            </Stack>
                         </ListItem>
                         <ListItem>
                             <Stack display={'flex'} flexDirection={'row'} gap={1}>

@@ -93,6 +93,8 @@ const Leagues = () => {
                 !selectedLeagues.length ? null :
                     <Stack display={'flex'} alignItems={'center'} flexDirection={'row'} justifyContent={'space-between'} >
                         <ListItem>
+                        <Stack>
+                            <Typography fontSize={10} color={'grey'}>Status</Typography>
                             <Select defaultValue={''} sx={{width: '200px'}}
                                     onChange={(e) => handlePublish(e.target.value)}>
                                 <MenuItem value={false}>
@@ -102,6 +104,7 @@ const Leagues = () => {
                                     Опублікований
                                 </MenuItem>
                             </Select>
+                            </Stack>
                         </ListItem>
 
                         <ListItem>

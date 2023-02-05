@@ -110,7 +110,7 @@ function Users() {
                         <ListItem>
                             <Stack>
                                 <Typography fontSize={10} color={'grey'}>Status</Typography>
-                                <Select defaultValue={false} sx={{width: '200px'}}
+                                <Select defaultValue={''} sx={{width: '200px'}}
                                         onChange={(e) => handlePublish(e.target.value)}>
                                     <MenuItem value={false}>
                                         Не Опублікований

@@ -93,7 +93,7 @@ const Leagues = () => {
                 !selectedLeagues.length ? null :
                     <Stack display={'flex'} alignItems={'center'} flexDirection={'row'} justifyContent={'space-between'} >
                         <ListItem>
-                            <Select defaultValue={false} sx={{width: '200px'}}
+                            <Select defaultValue={''} sx={{width: '200px'}}
                                     onChange={(e) => handlePublish(e.target.value)}>
                                 <MenuItem value={false}>
                                     Не Опублікований

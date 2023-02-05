@@ -120,7 +120,7 @@ const Teams = () => {
                         </ListItem>
 
                         <ListItem>
-                            <Select defaultValue={false} sx={{width: '200px'}}
+                            <Select defaultValue={''} sx={{width: '200px'}}
                                     onChange={(e) => handlePublish(e.target.value)}>
                                 <MenuItem value={false}>
                                     Не Опублікований

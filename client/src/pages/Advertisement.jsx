@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useEffect, useState} from 'react';
 import {
     useCreateAdvertisementMutation,
@@ -111,7 +112,7 @@ const Advertisement = () => {
                     <TableBody>
                         {
                             advertisements?.map(advertisement => <AdvertisementRow advertisement={advertisement} isSelected={selectedAdvertisement.includes(advertisement._id)}
-                                                        key={advertisement?.name}/>)
+                                                        key={advertisement?._id}/>)
 
                         }
                     </TableBody>

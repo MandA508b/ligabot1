@@ -7,6 +7,10 @@ export const teamsApiSlice = apiSlice.injectEndpoints({
             query: () => '/teams/findAll',
             providesTags:["Teams"]
         }),
+        fetchAllTrueTeams: build.query({
+            query: () => '/teams/findAllStatusTrue',
+            providesTags:["Teams"]
+        }),
         createTeam: build.mutation({
             query:body=>({
                 url:'/teams/create',
@@ -48,4 +52,4 @@ export const teamsApiSlice = apiSlice.injectEndpoints({
     })
 })
 
-export const {useFetchAllTeamsQuery, useCreateTeamMutation,useUpdateTeamMutation, useDeleteTeamMutation, useFindTeamsByLeagueIdMutation, useFindTeamByIdMutation} = teamsApiSlice
+export const {useFetchAllTeamsQuery ,useFetchAllTrueTeamsQuery, useCreateTeamMutation,useUpdateTeamMutation, useDeleteTeamMutation, useFindTeamsByLeagueIdMutation, useFindTeamByIdMutation} = teamsApiSlice

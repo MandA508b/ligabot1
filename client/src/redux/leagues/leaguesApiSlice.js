@@ -7,6 +7,10 @@ export const leaguesApiSlice = apiSlice.injectEndpoints({
             query: () => '/leagues/findAll',
             providesTags:["Leagues"]
         }),
+        fetchAllTrueLeagues: build.query({
+            query: () => '/leagues/findAllStatusTrue',
+            providesTags:["Leagues"]
+        }),
         createLeague: build.mutation({
             query:body=>({
                 url:'/leagues/create',
@@ -41,4 +45,4 @@ export const leaguesApiSlice = apiSlice.injectEndpoints({
     })
 })
 
-export const {useFetchAllLeaguesQuery, useCreateLeagueMutation,useUpdateLeagueMutation, useDeleteLeagueMutation,useGetLeagueByIdMutation} = leaguesApiSlice
+export const {useFetchAllLeaguesQuery,useFetchAllTrueLeaguesQuery , useCreateLeagueMutation,useUpdateLeagueMutation, useDeleteLeagueMutation,useGetLeagueByIdMutation} = leaguesApiSlice

@@ -56,16 +56,13 @@ bot.hears('Канали', async (ctx)=>{
        }
 
        const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
-       console.log({user})
+
        const team = await teamService.findByTeamId(user.teamId)
-       console.log({team})
-       const channels = await channelService.getByLeagueId(team.leagueId)
-       console.log({channels})
-       console.log(channels.length)
-       let channelsList = 'Ваші канали:\n'
-       for (let channelsKey in channels) {
-           channelsList += `${channels[channelsKey].URL}\n`
-       }
+
+       const channel = await channelService.getByLeagueId(team.leagueId)
+
+       let channelsList = 'Ваші канали:\n' + `${channel.URL}`
+
        await ctx.reply(channelsList, Markup
            .keyboard([
                ['Додати оголошення', 'Мої оголошення'],

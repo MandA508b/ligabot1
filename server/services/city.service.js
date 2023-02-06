@@ -3,33 +3,53 @@ const City = require('../../models/city.model')
 class cityController{
 
     async create(name){
-        const city = await City.create({name})
+        try{
+            const city = await City.create({name})
 
-        return city
+            return city
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async delete(cityId){
-        const city = await City.findByIdAndDelete(cityId)
+        try{
+            const city = await City.findByIdAndDelete(cityId)
 
-        return city
+            return city
+        }catch (e) {
+            console.log("error: ", e )
+        }
     }
 
     async redact(cityId, data){
-        const city = await City.findByIdAndUpdate(cityId, data)
-        console.log(cityId, data)
-        return city
+        try{
+            const city = await City.findByIdAndUpdate(cityId, data)
+            console.log(cityId, data)
+            return city
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async findAll(){
-        const cities = await City.find()
+        try{
+            const cities = await City.find()
 
-        return cities
+            return cities
+        }catch (e) {
+            console.log("error: ",e)
+        }
     }
 
     async findById(cityId){
-        const city = await City.findById(cityId)
+        try{
+            const city = await City.findById(cityId)
 
-        return city
+            return city
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
 }

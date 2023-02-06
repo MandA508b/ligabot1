@@ -35,7 +35,7 @@ bot.start(async (ctx) => {
                 .resize()
             )
     }catch (e) {
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 
@@ -61,6 +61,7 @@ bot.hears('Канали', async (ctx)=>{
        console.log({team})
        const channels = await channelService.getByLeagueId(team.leagueId)
        console.log({channels})
+       console.log(channels.length)
        let channelsList = 'Ваші канали:\n'
        for (let channelsKey in channels) {
            channelsList += `${channels[channelsKey].URL}\n`
@@ -74,7 +75,7 @@ bot.hears('Канали', async (ctx)=>{
            .resize()
        )
    }catch (e) {
-       console.log('errror')
+       console.log('error: ', e)
    }
 })
 
@@ -126,7 +127,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
             )
         }
     }catch (e) {
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 
@@ -136,7 +137,7 @@ bot.action('delete', async (ctx) => {
         await advertisementService.deleteByNumber(number)
         await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
     }catch (e) {
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 
@@ -175,7 +176,7 @@ bot.hears('Додати оголошення', async (ctx)=> {
         )
 
     }catch (e) {
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 
@@ -231,7 +232,7 @@ bot.action('1', async (ctx)=> {
                 .resize()
         )
     }catch (e){
-        console.log('error')
+        console.log('error: ', e)
     }
 
 })
@@ -298,7 +299,7 @@ bot.hears('Мої чати', async (ctx)=>{
             )
         }
     }catch (e){
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 
@@ -313,7 +314,7 @@ bot.hears('/menu', async (ctx)=>{
             .resize()
         )
     }catch (e) {
-        console.log('error')
+        console.log('error: ', e)
     }
 })
 

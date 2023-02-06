@@ -3,44 +3,68 @@ const Chat = require('../../models/chat.model')
 class chatService{
 
         async create(advertisementId, customerId, clientId){
-        const candidate = await Chat.findOne({advertisementId, customerId, clientId})
-        if(candidate){
-            return candidate
-        }
-        const room = "" + advertisementId + customerId + clientId
-        const chat = await Chat.create({advertisementId, customerId, clientId, room})
+        try{
+            const candidate = await Chat.findOne({advertisementId, customerId, clientId})
+            if(candidate){
+                return candidate
+            }
+            const room = "" + advertisementId + customerId + clientId
+            const chat = await Chat.create({advertisementId, customerId, clientId, room})
 
-        return chat
+            return chat
+        }catch (e) {
+            console.log("error: ",e)
+        }
     }
 
     async delete(chatId){
-        const chat = await Chat.findByIdAndDelete(chatId)
+        try{
+            const chat = await Chat.findByIdAndDelete(chatId)
 
-        return chat
+            return chat
+        }catch (e) {
+            console.log("error: ",e )
+        }
     }
 
     async findAll(){
-        const chats = await Chat.find()
+        try{
+            const chats = await Chat.find()
 
-        return chats
+            return chats
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async getByUserId(userId){
-        const chat = await Chat.findOne({userId})
+        try{
+            const chat = await Chat.findOne({userId})
 
-        return chat
+            return chat
+        }catch (e) {
+            console.log("error: ",e)
+        }
     }
 
     async getAllByCustomerId(userId){
-        const chats = await Chat.find({ customerId: userId})
+        try{
+            const chats = await Chat.find({ customerId: userId})
 
-        return chats
+            return chats
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async getAllByClientId(userId){
-        const chats = await Chat.find({ clientId: userId})
+        try{
+            const chats = await Chat.find({ clientId: userId})
 
-        return chats
+            return chats
+        }catch (e){
+            console.log("error: ", e)
+        }
     }
 }
 

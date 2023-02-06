@@ -4,51 +4,87 @@ const User = require("../../models/user.model");
 class teamController{
 
     async findByTeamId(teamId){
-        const team = await Team.findById(teamId)
-        return team
+        try{
+            const team = await Team.findById(teamId)
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async findByLeagueId(leagueId){
-        const teams = await Team.find({leagueId})
-        return teams
+        try{
+            const teams = await Team.find({leagueId})
+            return teams
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
     async findTeamsByLeagueId(leagueId){
-        const teams = await Team.find({leagueId})
-        return teams
+        try{
+            const teams = await Team.find({leagueId})
+            return teams
+        }catch (e) {
+            console.log("error: ", e )
+        }
     }
     async findTeamById(id){
-        const team = await Team.findById(id)
-        return team
+        try{
+            const team = await Team.findById(id)
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
     async create(name, leagueId){
-        const team = await Team.create({name, leagueId})
+        try{
+            const team = await Team.create({name, leagueId})
 
-        return team
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async delete(teamId){
-        const team = await Team.findByIdAndDelete(teamId)
-        await User.updateMany({teamId}, {teamId: "000000000000000000000000"})
+        try{
+            const team = await Team.findByIdAndDelete(teamId)
+            await User.updateMany({teamId}, {teamId: "000000000000000000000000"})
 
-        return team
+            return team
+        }catch (e) {
+            console.log("error: ",e )
+        }
     }
 
     async redact(teamId, data){
-        const team = await Team.findByIdAndUpdate(teamId, data)
+        try{
+            const team = await Team.findByIdAndUpdate(teamId, data)
 
-        return team
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async findAll(){
-        const teams = await Team.find()
+        try{
+            const teams = await Team.find()
 
-        return teams
+            return teams
+        }catch (e) {
+            console.log("error: ",e )
+        }
     }
 
     async findAllStatusTrue(){
-        const teams = await Team.find({status: true})
+        try{
+            const teams = await Team.find({status: true})
 
-        return teams
+            return teams
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
 }

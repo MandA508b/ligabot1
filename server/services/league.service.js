@@ -4,41 +4,64 @@ const Team = require('../../models/team.model')
 
 class leagueController{// userData: [{userId: _id, updateData: {..data to update..}}, ...]
     async create(name, level){
-        const team = await League.create({name, level})
+        try{
+            const team = await League.create({name, level})
 
-        return team
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async getLeagueById(leagueId){
-        const league = await League.findById(leagueId)
-        return league
+        try{
+            const league = await League.findById(leagueId)
+            return league
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async delete(leagueId){
-        const league = await League.findByIdAndDelete(leagueId)
-        await User.updateMany({leagueId}, {leagueId: "000000000000000000000000"})
-        await Team.updateMany({leagueId}, {leagueId: "000000000000000000000000"})
+        try{
+            const league = await League.findByIdAndDelete(leagueId)
+            await User.updateMany({leagueId}, {leagueId: "000000000000000000000000"})
+            await Team.updateMany({leagueId}, {leagueId: "000000000000000000000000"})
 
-        return league
+            return league
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async redact(leagueId, data){
-        console.log(leagueId, data)
-        const team = await League.findByIdAndUpdate(leagueId, data)
+        try{
+            const team = await League.findByIdAndUpdate(leagueId, data)
 
-        return team
+            return team
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async findAll(){    
-        const leagues = await League.find()
+        try{
+            const leagues = await League.find()
 
-        return leagues
+            return leagues
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
     async findAllStatusTrue(){
-        const leagues = await League.find({status: true})
+        try{
+            const leagues = await League.find({status: true})
 
-        return leagues
+            return leagues
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
 }

@@ -318,5 +318,5 @@ bot.hears('/menu', async (ctx)=>{
 })
 
 startServer()
-bot.launch()
+bot.launch().catch(err => {console.log("error: ", err)})
 

@@ -20,21 +20,24 @@ const UserRow = ({data, isSelected}) => {
                 console.log(data.teamId)
                 const res = await findTeamById({id:data.teamId})
                 setTeam(res.data.teams.name)
-                console.log(res)
+                const league =  await findLeagueById({leagueId:res.data.teams.leagueId})
+                setLeague(league.data.league.name)
+
+                console.log(res,league)
             }
 
         }
-        const getLeague = async ()=>{
-            console.log(data.leagueId)
-            if(data.leagueId!=='0'){
-                console.log(data.teamId)
-                const res = await findLeagueById({leagueId:data.leagueId})
-                setLeague(res.data.league.name)
-                console.log(res.data)
-            }
+        // const getLeague = async ()=>{
+        //     console.log(data.leagueId)
+        //     if(data.leagueId!=='0'){
+        //         console.log(data.teamId)
+        //         const res = await findLeagueById({leagueId:data.leagueId})
+        //         setLeague(res.data.league.name)
+        //         console.log(res.data)
+        //     }
 
-        }
-        getLeague()
+        // }
+        //getLeague()
         getTeam()
     },[])
     return (

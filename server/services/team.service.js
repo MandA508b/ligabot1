@@ -3,8 +3,13 @@ const User = require("../../models/user.model");
 
 class teamController{
 
+    async findByTeamId(teamId){
+        const team = await Team.findById(teamId)
+        return team
+    }
+
     async findByLeagueId(leagueId){
-        const teams = Team.find({leagueId})
+        const teams = await Team.find({leagueId})
         return teams
     }
     async findTeamsByLeagueId(leagueId){

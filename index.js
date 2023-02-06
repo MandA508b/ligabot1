@@ -9,6 +9,7 @@ const userService = require('./server/services/user.service')
 const chatService = require('./server/services/chat.service')
 const bot = require('./telgram/telegram')
 const chatDataService = require("./server/services/chatData.service");
+const teamService = require('./server/services/team.service')
 
 bot.telegram.setMyCommands( [{ command: 'menu', description: 'Open menu buttons' }, { command: 'start', description: 'Start the bot' }])
 
@@ -50,7 +51,8 @@ bot.hears('Канали', async (ctx)=>{
     }
 
     const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
-    const channels = await channelService.getAllByLeagueId(user.leagueId)
+    const team = await teamService.findByTeamId(user.teamId)
+    const channels = await channelService.getByLeagueId(team.leagueId)
     let channelsList = 'Ваші канали:\n'
     for (let channelsKey in channels) {
         channelsList += `${channels[channelsKey].URL}\n`
@@ -280,6 +282,6 @@ bot.hears('/menu', async (ctx)=>{
     )
 })
 
-
 startServer()
 bot.launch()
+

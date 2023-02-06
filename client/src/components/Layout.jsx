@@ -25,7 +25,7 @@ const Layout = () => {
                         <Link to={`/${page}`} key={page}>
                             <Typography fontSize={22} textTransform={'capitalize'}
                                         sx={{textDecoration: location.pathname === '/' + page ? "underline" : 'none'}}>
-                                {page}
+                                {page==='advertisements' ? 'posts' : page}
                             </Typography></Link>
                     )
                 }

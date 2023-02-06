@@ -94,7 +94,9 @@ const City = () => {
 
 
                         <ListItem>
-                            <Select defaultValue={false} sx={{width: '200px'}}
+                            <Stack>
+                            <Typography fontSize={10} color={'grey'}>Status</Typography>
+                            <Select defaultValue={''} sx={{width: '200px'}}
                                     onChange={(e) => handlePublish(e.target.value)}>
                                 <MenuItem value={false}>
                                     Не Опублікований
@@ -103,6 +105,8 @@ const City = () => {
                                     Опублікований
                                 </MenuItem>
                             </Select>
+                            </Stack>
+                            
                         </ListItem>
                         <ListItem>
                             <Stack display={'flex'} flexDirection={'row'} gap={1}>

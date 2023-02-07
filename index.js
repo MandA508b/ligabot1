@@ -1,6 +1,5 @@
 require('dotenv').config()
 const { Markup } = require('telegraf')
-const startServer = require('./server/index')
 const userController = require('./controllers/user.controller')
 const advertisementService = require('./server/services/advertisement.service')
 const cityService = require("./server/services/city.service");
@@ -315,6 +314,33 @@ bot.hears('/menu', async (ctx)=>{
     }
 })
 
-startServer()
-bot.launch().catch(err => {console.log("error: ", err)})
 
+const express = require('express')
+const cors = require('cors')
+const router = require('./server/routers/index')
+const errorMiddleware = require('./server/middleware/errorHandlingMiddleware')
+
+const app = new express()
+const PORT = 5000 || process.env.PORT
+
+app.use(express.json())
+app.use(cors({
+    credentials: true,
+    origin: ['http://localhost:3000','https://heroic-profiterole-cc695c.netlify.app', 'https://main--voluble-pegasus-6a9597.netlify.app','https://neon-kulfi-303418.netlify.app']
+}))
+app.use('/', router)
+app.use(errorMiddleware)
+
+
+async function start(){
+    try{
+        app.listen(PORT, () => {
+            console.log(`Server started on PORT: ${PORT}`)
+        })
+    }catch (e){
+        console.log(e)
+    }
+}
+
+start()
+bot.launch().catch(err => {console.log("error: ", err)})

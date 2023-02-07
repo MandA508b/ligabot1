@@ -314,6 +314,7 @@ bot.hears('/menu', async (ctx)=>{
         console.log('error: ', e)
     }
 })
+bot.launch().catch(err => {console.log("error: ", err)})
 
 startServer()
 

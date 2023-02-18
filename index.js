@@ -42,6 +42,8 @@ bot.start(async (ctx) => {
 
 bot.hears('Канали', async (ctx)=>{
    try{
+       await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
        const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
        const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
        if(userAuth.isBlocked || !accessToMenu){
@@ -78,6 +80,8 @@ bot.hears('Канали', async (ctx)=>{
 
 bot.hears('Мої оголошення', async (ctx)=> {
     try{
+        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
         const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
         const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
         if(userAuth.isBlocked || !accessToMenu){
@@ -134,6 +138,8 @@ bot.action('delete', async (ctx) => {
 
 bot.hears('Додати оголошення', async (ctx)=> {
     try{
+        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
         const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
         const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
         if(userAuth.isBlocked || !accessToMenu){
@@ -230,7 +236,7 @@ bot.action('send_rate_request', async (ctx)=> {
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
 
         await ctx.telegram.sendMessage(userCustomer.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/rate?chatId=${chat._id}&advertisement=${advertisement._id}`),// requestRAte, advertId
+                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisement=${advertisement._id}`),// requestRAte, advertId
             ])
         )
     }catch (e){
@@ -334,6 +340,8 @@ bot.action('cancel_rate', async (ctx)=> {
 
 bot.hears('Мої чати', async (ctx)=>{
     try{
+        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
         const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
         const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
         if(userAuth.isBlocked || !accessToMenu){
@@ -388,6 +396,8 @@ bot.hears('Мої чати', async (ctx)=>{
 
 bot.hears('Мої пропозиції', async (ctx)=>{
     try{
+        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
         const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
         const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
         if(userAuth.isBlocked || !accessToMenu){
@@ -425,6 +435,8 @@ bot.hears('Мої пропозиції', async (ctx)=>{
 
 bot.hears('/menu', async (ctx)=>{
     try{
+        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+
         await ctx.reply('menu:', Markup
             .keyboard([
                 ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],

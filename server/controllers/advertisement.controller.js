@@ -9,29 +9,40 @@ class advertisementController{
     async create(req, res, next){
         try{
             const {userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo} = req.body
-            if(!userId || !leagueId || !type ||! cityId || !total || !rate || !deadline){
-               // console.log(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
+            if(!userId || !leagueId || !type || !cityId || !total || !rate || !deadline){
                 return next(ApiError.badRequest('!name || !userId || !type ||! cityId || !total || !rate || !deadline'))
             }
-            const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
 
+            const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)
             const channel = await channelService.getByLeagueId(leagueId)
 
             if(channel){
                 const cityName = await cityService.findById(advertisement.cityId)
-
-                const channelId = channel.channelId.toString()
-                await bot.telegram.sendMessage(channelId, `Оголошення №${advertisement.number}\n`+
-                    `${advertisement.type}: ${advertisement.total} USDT trc20\n`+
-                    `Місто: ${cityName.name}\n`+
-                    `Частин: ${advertisement.rate}\n`+
-                    `Ставка: ${advertisement.part}%\n`+
-                    `Дійсне до: ${advertisement.deadline}\n`+
-                    `${advertisement.extraInfo}`,
-                    Markup.inlineKeyboard([
-                        Markup.button.callback('Написати', `1`)
-                    ])
-                );
+                if(advertisement.rate === 0){
+                    await bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
+                        `${advertisement.type}: ${advertisement.total} USDT trc20\n`+
+                        `Місто: ${cityName.name}\n`+
+                        `Частин: ${advertisement.part}\n`+
+                        `Ставка: ${advertisement.rate}%\n`+
+                        `Дійсне до: ${advertisement.deadline}\n`+
+                        `${advertisement.extraInfo}`,
+                        Markup.inlineKeyboard([
+                            Markup.button.callback('Запропунувати ціну', `send_rate_request`)
+                        ])
+                    );
+               }else{
+                   await bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
+                       `${advertisement.type}: ${advertisement.total} USDT trc20\n`+
+                       `Місто: ${cityName.name}\n`+
+                       `Частин: ${advertisement.part}\n`+
+                       `Ставка: ${advertisement.rate}%\n`+
+                       `Дійсне до: ${advertisement.deadline}\n`+
+                       `${advertisement.extraInfo}`,
+                       Markup.inlineKeyboard([
+                           Markup.button.callback('Написати', `send_message`)
+                       ])
+                   );
+               }
             }
 
             return res.json({advertisement})

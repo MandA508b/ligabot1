@@ -1,14 +1,14 @@
-const chatService  = require('../services/channel.service')
+const chatService  = require('../services/chat.service')
 const ApiError = require('../errors/api.error')
 
 class chatController{
     async create(req, res, next){
         try{
-            const {advertisementId, customerId, clientId} = req.body
+            const {advertisementId, customerId, clientId, accepted} = req.body
             if(!advertisementId || !customerId || !clientId){
                 return next(ApiError.badRequest('!advertisementId || !customerId || !clientId'))
             }
-            const chat = await chatService.create(advertisementId, customerId, clientId)
+            const chat = await chatService.create(advertisementId, customerId, clientId, accepted)
 
             return res.json({chat})
         }catch (e) {
@@ -39,6 +39,21 @@ class chatController{
             next(e)
         }
     }
+
+    async sendRateRequest(req, res, next){
+        try{
+            const {requestRate, advertisementId, rate} = req.body
+            if(!requestRate || !advertisementId || !rate){
+                return next(ApiError.badRequest('!requestRate || !advertisementId || !rate'))
+            }
+            const request = await chatService.sendRateRequest(requestRate, advertisementId, rate)
+
+            return res.json(request)
+        }catch (e) {
+            next(e)
+        }
+    }
+
 
 
 }

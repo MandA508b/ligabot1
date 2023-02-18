@@ -12,6 +12,10 @@ const schema = new db.Schema({
     advertisementId: {
         type: db.Schema.Types.ObjectId,
         required: true
+    },
+    rate: {
+        type: Number,
+        required: true
     }
 })
 

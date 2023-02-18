@@ -4,6 +4,7 @@ const bot = require('../../telgram/telegram')
 const teamService = require('./team.service')
 const advertisementService = require('./advertisement.service')
 const {Markup} = require("telegraf");
+const requestRateService = require('./requestRate.service')
 
 class chatService{
 
@@ -79,10 +80,11 @@ class chatService{
         return chat
     }
 
-    async sendRateRequest(requestRate, advertisementId, rate){// requestRate: chatId, number
+    async sendRateRequest(chatId, advertisementId, rate){// requestRate: chatId, number
 
         try{
-            const chat = await this.findById(requestRate.chatId)
+            const chat = await this.findById(chatId)
+            const requestRate = await requestRateService.create(chatId, advertisementId)
 
             if(!chat){
                 throw ApiError.notFound('!chat')

@@ -228,10 +228,9 @@ bot.action('send_rate_request', async (ctx)=> {
         const userCustomer = await userService.getUserById(advertisement.userId)
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
-        const requestRate = await requestRateService.create(chat._id, advertisement._id)
 
         await ctx.telegram.sendMessage(userCustomer.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Відповісти`, `https://www.google.com/`),// requestRAte, advertId
+                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/rate?chatId=${chat._id}&advertisement=${advertisement._id}`),// requestRAte, advertId
             ])
         )
     }catch (e){
@@ -401,12 +400,12 @@ bot.hears('Мої пропозиції', async (ctx)=>{
                 .resize()
             )
         }
-
         const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
 
-        const clientChats = await chatService.getAllByClientId(user._id)
-        if(clientChats.length)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, "Ваші запити :", Markup
+        const requestChats = await chatService.findAllRequestsByUserId(user._id)
+        console.log(requestChats)
+
+        await bot.telegram.sendMessage(ctx.update.message.from.id, "Ваші запити :", Markup
             .keyboard([
                 ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                 ['Канали', 'Мої чати']
@@ -415,8 +414,8 @@ bot.hears('Мої пропозиції', async (ctx)=>{
             .resize()
         )
 
-        for (let chatsKey in clientChats) {
-            const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
+        for (let chatsKey in requestChats) {
+            const advertisement = await advertisementService.getById(requestChats[chatsKey].advertisementId)
             await bot.telegram.sendMessage(ctx.update.message.from.id, `Запит на оголошенням №${advertisement.number}`)
         }
     }catch (e){

@@ -42,11 +42,11 @@ class chatController{
 
     async sendRateRequest(req, res, next){
         try{
-            const {requestRate, advertisementId, rate} = req.body
-            if(!requestRate || !advertisementId || !rate){
-                return next(ApiError.badRequest('!requestRate || !advertisementId || !rate'))
+            const {chatId, advertisementId, rate} = req.body
+            if(!chatId || !advertisementId || !rate){
+                return next(ApiError.badRequest('!chatId || !advertisementId || !rate'))
             }
-            const request = await chatService.sendRateRequest(requestRate, advertisementId, rate)
+            const request = await chatService.sendRateRequest(chatId, advertisementId, rate)
 
             return res.json(request)
         }catch (e) {

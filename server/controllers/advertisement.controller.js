@@ -9,8 +9,8 @@ class advertisementController{
     async create(req, res, next){
         try{
             const {userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo} = req.body
-            if(!userId || !leagueId || !type || !cityId || !total || !rate || !deadline){
-                return next(ApiError.badRequest('!name || !userId || !type ||! cityId || !total || !rate || !deadline'))
+            if(!userId || !leagueId || !type || !cityId || !total || rate == undefined || !deadline){
+                return next(ApiError.badRequest('!userId || !type ||! cityId || !total || !rate || !deadline'))
             }
 
             const advertisement = await advertisementService.create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo)

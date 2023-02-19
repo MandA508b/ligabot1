@@ -56,7 +56,7 @@ class chatService{
 
     async getAllByCustomerId(userId){
         try{
-            const chats = await Chat.find({ customerId: userId})
+            const chats = await Chat.find({ customerId: userId, accepted: true})
 
             return chats
         }catch (e) {
@@ -66,7 +66,7 @@ class chatService{
 
     async getAllByClientId(userId){
         try{
-            const chats = await Chat.find({ clientId: userId})
+            const chats = await Chat.find({ clientId: userId, accepted: true})
 
             return chats
         }catch (e){
@@ -100,7 +100,7 @@ class chatService{
                 throw ApiError.notFound('!teamClient || !advertisement')
             }
 
-            await bot.telegram.sendMessage(userCustomer, `Запит №${requestRate.number}: \n`+
+            await bot.telegram.sendMessage(userCustomer, `Запит №${requestRate.number} : \n`+
             `Користувач з команди ${teamClient.name} пропунує ставку ${rate} на вашу заявку №${advertisement.number}`,
                 Markup.inlineKeyboard([
                     Markup.button.callback(`Прийняти`, `accept_rate`),

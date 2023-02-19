@@ -19,7 +19,7 @@ bot.start(async (ctx) => {
         if(registration)
             await ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!", Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -28,7 +28,7 @@ bot.start(async (ctx) => {
         else
             await ctx.reply("Ви вже зареєстровані!", Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -49,7 +49,7 @@ bot.hears('Канали', async (ctx)=>{
        if(userAuth.isBlocked || !accessToMenu){
            return await ctx.reply('У вас немає доступу!', Markup
                .keyboard([
-                   ['Додати оголошення', 'Мої оголошення'],
+                   ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                    ['Канали', 'Мої чати']
                ])
                .oneTime()
@@ -67,7 +67,7 @@ bot.hears('Канали', async (ctx)=>{
 
        await ctx.reply(channelsList, Markup
            .keyboard([
-               ['Додати оголошення', 'Мої оголошення'],
+               ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                ['Канали', 'Мої чати']
            ])
            .oneTime()
@@ -87,7 +87,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
         if(userAuth.isBlocked || !accessToMenu){
             return await ctx.reply('У вас немає доступу!', Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -107,26 +107,40 @@ bot.hears('Мої оголошення', async (ctx)=> {
         for (let advertisementsKey in advertisements) {
             const cityId = advertisements[advertisementsKey].cityId
             const cityName = await cityService.findById(cityId)
-
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
-                `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
-                `Місто: ${cityName.name}\n` +
-                `Частин: ${advertisements[advertisementsKey].part}\n` +
-                `Ставка: ${advertisements[advertisementsKey].rate}%\n` +
-                `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
-                `${advertisements[advertisementsKey].extraInfo}`,
-                Markup.inlineKeyboard([
-                    Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
-                    Markup.button.callback('Скасувати', 'delete')
-                ])
-            )
+            if(advertisements[advertisementsKey].rate == 0){
+                await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
+                    `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
+                    `Місто: ${cityName.name}\n` +
+                    `Частин: ${advertisements[advertisementsKey].part}\n` +
+                    `Ставка: ${advertisements[advertisementsKey].rate}%\n` +
+                    `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
+                    `${advertisements[advertisementsKey].extraInfo}`,
+                    Markup.inlineKeyboard([[
+                        Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
+                        Markup.button.callback('Скасувати', 'delete_advertisement')
+                    ],[Markup.button.callback('Переглянути Пропозиції', 'show_requests_rate')]])
+                )
+            }else{
+                await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
+                    `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
+                    `Місто: ${cityName.name}\n` +
+                    `Частин: ${advertisements[advertisementsKey].part}\n` +
+                    `Ставка: ${advertisements[advertisementsKey].rate}%\n` +
+                    `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
+                    `${advertisements[advertisementsKey].extraInfo}`,
+                    Markup.inlineKeyboard([
+                        Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
+                        Markup.button.callback('Скасувати', 'delete_advertisement')
+                    ])
+                )
+            }
         }
     }catch (e) {
         console.log('error: ', e)
     }
 })
 
-bot.action('delete', async (ctx) => {
+bot.action('delete_advertisement', async (ctx) => {
     try{
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
         await advertisementService.deleteByNumber(number)
@@ -145,7 +159,7 @@ bot.hears('Додати оголошення', async (ctx)=> {
         if(userAuth.isBlocked || !accessToMenu){
             return await ctx.reply('У вас немає доступу!', Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -234,11 +248,21 @@ bot.action('send_rate_request', async (ctx)=> {
         const userCustomer = await userService.getUserById(advertisement.userId)
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
-
+        console.log('-------------------------------',advertisement._id, '------------------------------')
         await ctx.telegram.sendMessage(userCustomer.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisement=${advertisement._id}`),// requestRAte, advertId
+                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
+                Markup.button.callback('Скасувати', 'cancel_rate_request')
             ])
         )
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('cancel_rate_request', async (ctx)=> {
+    try{
+        await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
     }catch (e){
         console.log('error: ', e)
     }
@@ -294,14 +318,10 @@ bot.action('accept_rate', async (ctx)=> {
 bot.action('cancel_rate', async (ctx)=> {
     try{
         //data to delete requestRate and chat
-        let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1])
-        requestRateNumber = requestRateNumber.slice(1, requestRateNumber.length-2)
+        let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1].slice(1))
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
-        console.log(advertisementNumber)
         const advertisement = await advertisementService.getByNumber(advertisementNumber)
-
-        console.log(requestRateNumber, advertisement._id)
 
         if(!advertisement || !requestRateNumber)return await ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!", Markup
             .keyboard([
@@ -319,18 +339,18 @@ bot.action('cancel_rate', async (ctx)=> {
         const userClient = chat.clientId
         const userCustomer = chat.customerId
 
-        //delete chat
-        chat = await chatService.delete(requestRate.chatId)
-
-        //delete requestRate
-        await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
-
         //send notification to users
         await ctx.telegram.sendMessage(userClient,`Вашу ставку на замовлення №${advertisementNumber} скасували`
         )
 
         await ctx.telegram.sendMessage(userCustomer, `Ви успішно скасували ставку на замовлення №${advertisementNumber}`
         )
+
+        //delete chat
+        chat = await chatService.delete(requestRate.chatId)
+
+        //delete requestRate
+        await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
 
     }catch (e){
         console.log('error: ', e)
@@ -347,7 +367,7 @@ bot.hears('Мої чати', async (ctx)=>{
         if(userAuth.isBlocked || !accessToMenu){
             return await ctx.reply('У вас немає доступу!', Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -374,7 +394,8 @@ bot.hears('Мої чати', async (ctx)=>{
         }
 
         const clientChats = await chatService.getAllByClientId(user._id)
-        if(clientChats.length)    await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали ви :", Markup
+        if(clientChats.length)
+            await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали ви :", Markup
             .keyboard([
                 ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                 ['Канали', 'Мої чати']
@@ -403,7 +424,7 @@ bot.hears('Мої пропозиції', async (ctx)=>{
         if(userAuth.isBlocked || !accessToMenu){
             return await ctx.reply('У вас немає доступу!', Markup
                 .keyboard([
-                    ['Додати оголошення', 'Мої оголошення'],
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                     ['Канали', 'Мої чати']
                 ])
                 .oneTime()
@@ -413,9 +434,8 @@ bot.hears('Мої пропозиції', async (ctx)=>{
         const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
 
         const requestChats = await chatService.findAllRequestsByUserId(user._id)
-        console.log(requestChats)
 
-        await bot.telegram.sendMessage(ctx.update.message.from.id, "Ваші запити :", Markup
+        await bot.telegram.sendMessage(ctx.update.message.from.id, "Ваші пропозиції :", Markup
             .keyboard([
                 ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
                 ['Канали', 'Мої чати']
@@ -426,11 +446,64 @@ bot.hears('Мої пропозиції', async (ctx)=>{
 
         for (let chatsKey in requestChats) {
             const advertisement = await advertisementService.getById(requestChats[chatsKey].advertisementId)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Запит на оголошенням №${advertisement.number}`)
+            if(advertisement)
+            await bot.telegram.sendMessage(ctx.update.message.from.id, `Ви пропонуєте ${requestChats[chatsKey].rate}% на оголошенням №${advertisement.number}`)
+            else
+                console.log({advertisement}, {id: requestChats[chatsKey].advertisementId})
+
         }
     }catch (e){
         console.log('error: ', e)
     }
+})
+
+bot.action('show_requests_rate', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        console.log(ctx," message: ", ctx.update.callback_query.message.text)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
+        const advertisement = await advertisementService.getByNumber(numberAdvertisement)
+        const requestsRate = await requestRateService.getByAdvertisementId(advertisement._id)
+
+        if(requestsRate.length == 0 ){
+            return await bot.telegram.sendMessage(chatId, `Запитів на оголошення №${numberAdvertisement} не знайдено`, Markup
+                .keyboard([
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
+                    ['Канали', 'Мої чати']
+                ])
+                .oneTime()
+                .resize()
+            )
+        }
+
+        await bot.telegram.sendMessage(chatId, `Всі запити на оголошення №${numberAdvertisement}`, Markup
+            .keyboard([
+                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
+                ['Канали', 'Мої чати']
+            ])
+            .oneTime()
+            .resize()
+    )
+    for (let requestsRateKey in requestsRate) {
+        const chat = await chatService.findById(requestsRate[requestsRateKey].chatId)
+        const userClient = await userService.getUserById(chat.clientId)
+        const teamClient = await teamService.findByTeamId(userClient.teamId)
+
+        await bot.telegram.sendMessage(chatId, `Запит №${requestsRate[requestsRateKey].number} : \n`+
+            `Користувач з команди ${teamClient.name} пропунує ставку ${requestsRate[requestsRateKey].rate} на вашу заявку №${advertisement.number}`,
+            Markup.inlineKeyboard([
+                Markup.button.callback(`Прийняти`, `accept_rate`),
+                Markup.button.callback(`Відмовити`, `cancel_rate`)
+            ]))
+
+
+    }
+
+
+    }catch (e){
+        console.log('error: ', e)
+    }
+
 })
 
 bot.hears('/menu', async (ctx)=>{

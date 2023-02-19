@@ -28,6 +28,12 @@ class requestRateService{
       await RequestRate.deleteOne({number, advertisementId})
    }
 
+   async getByAdvertisementId(advertisementId){
+      const requestsRate = await RequestRate.find({advertisementId})
+
+      return requestsRate
+   }
+
 }
 
 module.exports = new requestRateService()

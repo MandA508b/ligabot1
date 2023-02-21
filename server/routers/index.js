@@ -7,6 +7,8 @@ const leagueRouter = require('./league.router')
 const cityRouter = require('./city.router')
 const channelRouter = require('./channel.router')
 const advertisementRouter = require('./advertisement.router')
+const chatRouter = require('./chat.router')
+
 router.use('/user', userRouter)
 router.use('/admin', adminRouter)
 router.use('/teams', teamsRouter)
@@ -14,4 +16,6 @@ router.use('/leagues', leagueRouter)
 router.use('/city',cityRouter)
 router.use('/advertisement',advertisementRouter)
 router.use('/channel',channelRouter)
+router.use('/chat', chatRouter)
+
 module.exports = router

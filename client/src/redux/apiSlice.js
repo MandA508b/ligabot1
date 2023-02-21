@@ -2,9 +2,9 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {logoutUser, setCredentials} from "./auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl:"https://ligabotv2.onrender.com",
+    baseUrl:"https://ligabot.pp.ua",
     credentials: 'include',
-    prepareHeaders: (headers,{getState}) =>{
+    prepareHeaders: (headers) =>{
         const token = localStorage.getItem('token')
         if(token){
             headers.set('authorization', `Bearer ${token}`)

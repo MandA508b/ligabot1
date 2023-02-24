@@ -576,27 +576,27 @@ bot.action('delete_chat', async (ctx)=> {
         const user = await userService.getUserByTelegramId(chatId)
 
         if(text[1][0] === '#'){
-            const numberChat = text[1].slice(1)
+            const numberChat = text[1].split('\n')[0].slice(1)
 
-            const chat = chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
+            let chat = await chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
 
-            const userCustomer = chat.customerId
-            const userClient = chat.clientId
+            const userCustomer = await userService.getUserById(chat.customerId)
+            const userClient = await userService.getUserById(chat.clientId)
 
-            await chatService.delete(chat._id)
+            chat = await chatService.delete(chat._id)
 
-            await sendMessageWithKeyboard(userCustomer, `Чат #${numberChat} щодо оголошення №${numberAdvertisement} було успішно видалено!`)
-            await sendMessageWithKeyboard(userClient, `Чат щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
+            await sendMessageWithKeyboard(userCustomer.telegramId, `Чат #${numberChat} щодо оголошення №${numberAdvertisement} було успішно видалено!`)
+            await sendMessageWithKeyboard(userClient.telegramId, `Чат щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
         }else{
-            const chat = chatService.getByClientIdAndAdvertisementId(user._id, advertisement._id)
+            let chat = await chatService.getByClientIdAndAdvertisementId(user._id, advertisement._id)
 
-            const userCustomer = chat.customerId
-            const userClient = chat.clientId
+            const userCustomer = await userService.getUserById(chat.customerId)
+            const userClient = await userService.getUserById(chat.clientId)
 
-            await chatService.delete(chat._id)
+            chat = await chatService.delete(chat._id)
 
-            await sendMessageWithKeyboard(userCustomer, `Чат #${chat.number} щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
-            await sendMessageWithKeyboard(userClient, `Чат щодо оголошення №${numberAdvertisement} було успішно видалено!`)
+            await sendMessageWithKeyboard(userCustomer.telegramId, `Чат #${chat.number} щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
+            await sendMessageWithKeyboard(userClient.telegramId, `Чат щодо оголошення №${numberAdvertisement} було успішно видалено!`)
         }
 
 

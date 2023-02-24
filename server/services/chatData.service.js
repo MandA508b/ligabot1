@@ -13,6 +13,10 @@ class chatDataController{
         }
     }
 
+    async deleteByChatName(chatName){
+        await ChatData.deleteMany({chatName})
+    }
+
 }
 
 module.exports = new chatDataController()

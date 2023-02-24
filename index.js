@@ -16,48 +16,28 @@ bot.telegram.setMyCommands( [{ command: 'menu', description: 'Open menu buttons'
 bot.start(async (ctx) => {
     try{
         const registration = await userController.start(ctx.update.message.from)
+        const chatId = ctx.update.message.from.id
+
         if(registration)
-            await ctx.reply("Вітаю! Ви успішно зареєстровані як користувач!", Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+            await sendMessageWithKeyboard(chatId, "Вітаю! Ви успішно зареєстровані як користувач!")
         else
-            await ctx.reply("Ви вже зареєстровані!", Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+            await sendMessageWithKeyboard(chatId, "Ви вже зареєстровані!")
     }catch (e) {
         console.log('error: ', e)
     }
 })
 
-
 bot.hears('Канали', async (ctx)=>{
    try{
-       await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+       const chatId = ctx.update.message.from.id
 
-       const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
-       const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
-       if(userAuth.isBlocked || !accessToMenu){
-           return await ctx.reply('У вас немає доступу!', Markup
-               .keyboard([
-                   ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                   ['Канали', 'Мої чати']
-               ])
-               .oneTime()
-               .resize()
-           )
+       // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
+       const user =  await userService.getUserByTelegramId(chatId)
+       const accessToMenu = await userController.accessToMenu(chatId)
+
+       if(user.isBlocked || !accessToMenu){
+           return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
        }
-
-       const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
 
        const team = await teamService.findByTeamId(user.teamId)
 
@@ -65,14 +45,8 @@ bot.hears('Канали', async (ctx)=>{
 
        let channelsList = 'Ваші канали:\n' + `${channel.URL}`
 
-       await ctx.reply(channelsList, Markup
-           .keyboard([
-               ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-               ['Канали', 'Мої чати']
-           ])
-           .oneTime()
-           .resize()
-       )
+       await sendMessageWithKeyboard(chatId, channelsList)
+
    }catch (e) {
        console.log('error: ', e)
    }
@@ -80,60 +54,21 @@ bot.hears('Канали', async (ctx)=>{
 
 bot.hears('Мої оголошення', async (ctx)=> {
     try{
-        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+        const chatId = ctx.update.message.from.id
 
-        const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
-        const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
-        if(userAuth.isBlocked || !accessToMenu){
-            return await ctx.reply('У вас немає доступу!', Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+        // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
+        const user =  await userService.getUserByTelegramId(chatId)
+        const accessToMenu = await userController.accessToMenu(chatId)
+
+        if(user.isBlocked || !accessToMenu){
+            return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
         }
 
-        const advertisements = await advertisementService.getAllByTelegramId(ctx.update.message.from.id)
-        await ctx.reply("Ваші оголошення: ", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        const advertisements = await advertisementService.getAllByTelegramId(chatId)
+        await sendMessageWithKeyboard(chatId, "Ваші оголошення: ")
+
         for (let advertisementsKey in advertisements) {
-            const cityId = advertisements[advertisementsKey].cityId
-            const cityName = await cityService.findById(cityId)
-            if(advertisements[advertisementsKey].rate == 0){
-                await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
-                    `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
-                    `Місто: ${cityName.name}\n` +
-                    `Частин: ${advertisements[advertisementsKey].part}\n` +
-                    `Ставка: ${advertisements[advertisementsKey].rate}%\n` +
-                    `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
-                    `${advertisements[advertisementsKey].extraInfo}`,
-                    Markup.inlineKeyboard([[
-                        Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
-                        Markup.button.callback('Скасувати', 'delete_advertisement')
-                    ],[Markup.button.callback('Переглянути Пропозиції', 'show_requests_rate')]])
-                )
-            }else{
-                await bot.telegram.sendMessage(ctx.update.message.from.id, `Оголошення №${advertisements[advertisementsKey].number }\n` +
-                    `${advertisements[advertisementsKey].type}: ${advertisements[advertisementsKey].total} USDT trc20\n` +
-                    `Місто: ${cityName.name}\n` +
-                    `Частин: ${advertisements[advertisementsKey].part}\n` +
-                    `Ставка: ${advertisements[advertisementsKey].rate}%\n` +
-                    `Дійсне до: ${advertisements[advertisementsKey].deadline}\n` +
-                    `${advertisements[advertisementsKey].extraInfo}`,
-                    Markup.inlineKeyboard([
-                        Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisements[advertisementsKey]._id}`),
-                        Markup.button.callback('Скасувати', 'delete_advertisement')
-                    ])
-                )
-            }
+            await showAdvertisement(advertisements[advertisementsKey], chatId)
         }
     }catch (e) {
         console.log('error: ', e)
@@ -152,29 +87,18 @@ bot.action('delete_advertisement', async (ctx) => {
 
 bot.hears('Додати оголошення', async (ctx)=> {
     try{
-        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+        const chatId = ctx.update.message.from.id
 
-        const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
-        const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
-        if(userAuth.isBlocked || !accessToMenu){
-            return await ctx.reply('У вас немає доступу!', Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+        // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
+        const user =  await userService.getUserByTelegramId(chatId)
+        const accessToMenu = await userController.accessToMenu(chatId)
+
+        if(user.isBlocked || !accessToMenu){
+            return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
         }
-        await ctx.reply("Заповніть форму:", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
-        await ctx.reply('ФОРМА',
+
+        await sendMessageWithKeyboard(chatId, "...")
+        await ctx.reply('Заповніть форму',
             Markup.inlineKeyboard([
                 Markup.button.webApp('Заповнити', `${process.env.ADVERTISEMENT_CREATE_URL}`)
             ])
@@ -185,22 +109,30 @@ bot.hears('Додати оголошення', async (ctx)=> {
     }
 })
 
-bot.action('send_message', async (ctx)=> {
+bot.action('create_chat', async (ctx)=> {
     try{
+        const chatId = ctx.update.callback_query.from.id
+
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
         const advertisement = await advertisementService.getByNumber(number)
 
-        if(!advertisement)return await ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(!advertisement)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
 
-        const userClient = await userService.getUserByTelegramId(ctx.update.callback_query.from.id)
+        const userClient = await userService.getUserByTelegramId(chatId)
         const userCustomer = await userService.getUserById(advertisement.userId)
+
+        if(userCustomer._id.toString() === userClient._id.toString()){
+            return await sendMessageWithKeyboard(chatId, 'Ви не можете писати повідомлення самі собі !')
+        }
+        const candidat = await chatService.getByClientIdAndAdvertisementId(userClient._id, advertisement._id)
+
+        if(candidat){
+            return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
+                [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}`)],
+                [Markup.button.callback('Видалити чат', 'delete_chat')]
+                ])
+            )
+        }
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, true)
 
@@ -216,13 +148,19 @@ bot.action('send_message', async (ctx)=> {
         }
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),
+            [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`)],
+            [Markup.button.callback('Видалити чат', 'delete_chat')]
             ])
         )
 
-        await ctx.telegram.sendMessage(userCustomer.telegramId, `Хтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([
+        await ctx.telegram.sendMessage(userCustomer.telegramId, `Чат #${chat.number}\n\nХтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([[
                 Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`)
-            ])
+            ],
+            [
+                Markup.button.callback(`Бронювати`, `accept_reserve_advertisement`),
+                Markup.button.callback(`Фіксувати`, `accept_fix_advertisement`),
+            ],
+            [Markup.button.callback('Видалити чат', 'delete_chat')]])
         )
     }catch (e){
         console.log('error: ', e)
@@ -232,26 +170,36 @@ bot.action('send_message', async (ctx)=> {
 
 bot.action('send_rate_request', async (ctx)=> {
     try{
+        const chatId = ctx.update.callback_query.from.id
+
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
         const advertisement = await advertisementService.getByNumber(number)
 
-        if(!advertisement)return await ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(!advertisement)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+
+        if(advertisement.statusStage !== "open"){
+            if(advertisement.statusStage === "fixed"){
+                return await sendMessageWithKeyboard(chatId, "Це оголошення вже зафіксоване, спробуйте пізніше або пошукайте інше!")
+            }else
+            if(advertisement.statusStage === "reserved"){
+                return await sendMessageWithKeyboard(chatId, "Це оголошення вже зарезервоване, спробуйте пізніше або пошукайте інше!")
+            }else{
+                return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+            }
+        }
 
         const userClient = await userService.getUserByTelegramId(ctx.update.callback_query.from.id)
         const userCustomer = await userService.getUserById(advertisement.userId)
 
+        if(userCustomer._id.toString() === userClient._id.toString()){
+            return await sendMessageWithKeyboard(chatId, 'Ви не можете запропунувати ціну самі собі !')
+        }
+
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
-        console.log('-------------------------------',advertisement._id, '------------------------------')
+
         await ctx.telegram.sendMessage(userCustomer.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
-                Markup.button.callback('Скасувати', 'cancel_rate_request')
+                Markup.button.callback('Скасувати', 'cancel_action')
             ])
         )
     }catch (e){
@@ -260,7 +208,7 @@ bot.action('send_rate_request', async (ctx)=> {
 
 })
 
-bot.action('cancel_rate_request', async (ctx)=> {
+bot.action('cancel_action', async (ctx)=> {
     try{
         await ctx.telegram.deleteMessage(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id)
     }catch (e){
@@ -271,23 +219,14 @@ bot.action('cancel_rate_request', async (ctx)=> {
 
 bot.action('accept_rate', async (ctx)=> {
     try{
+        const chatId = ctx.update.callback_query.from.id
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1])
         requestRateNumber = requestRateNumber.slice(1, requestRateNumber.length-2)
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
-        console.log(advertisementNumber)
         const advertisement = await advertisementService.getByNumber(advertisementNumber)
 
-        console.log(requestRateNumber, advertisement._id)
-
-        if(!advertisement || !requestRateNumber)return await ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(!advertisement || !requestRateNumber)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
 
         const requestRate = await requestRateService.findByNumber(requestRateNumber, advertisement._id)
         let chat = await chatService.findById(requestRate.chatId)
@@ -317,20 +256,14 @@ bot.action('accept_rate', async (ctx)=> {
 
 bot.action('cancel_rate', async (ctx)=> {
     try{
+        const chatId = ctx.update.callback_query.from.id
         //data to delete requestRate and chat
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1].slice(1))
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
         const advertisement = await advertisementService.getByNumber(advertisementNumber)
 
-        if(!advertisement || !requestRateNumber)return await ctx.telegram.sendMessage(ctx.update.callback_query.from.id, "Щось пішло не так!", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(!advertisement || !requestRateNumber)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
 
         const requestRate = await requestRateService.findByNumber(requestRateNumber, advertisement._id)
         let chat = await chatService.findById(requestRate.chatId)
@@ -340,11 +273,9 @@ bot.action('cancel_rate', async (ctx)=> {
         const userCustomer = chat.customerId
 
         //send notification to users
-        await ctx.telegram.sendMessage(userClient,`Вашу ставку на замовлення №${advertisementNumber} скасували`
-        )
+        await sendMessageWithKeyboard(userClient, `Вашу ставку на замовлення №${advertisementNumber} скасували`)
 
-        await ctx.telegram.sendMessage(userCustomer, `Ви успішно скасували ставку на замовлення №${advertisementNumber}`
-        )
+        await sendMessageWithKeyboard(userCustomer, `Ви успішно скасували ставку на замовлення №${advertisementNumber}`)
 
         //delete chat
         chat = await chatService.delete(requestRate.chatId)
@@ -360,54 +291,60 @@ bot.action('cancel_rate', async (ctx)=> {
 
 bot.hears('Мої чати', async (ctx)=>{
     try{
-        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+        const chatId = ctx.update.message.from.id
+        // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
 
-        const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
-        const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+        const userAuth =  await userService.getUserByTelegramId(chatId)
+        const accessToMenu = await userController.accessToMenu(chatId)
         if(userAuth.isBlocked || !accessToMenu){
-            return await ctx.reply('У вас немає доступу!', Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+            return await sendMessageWithKeyboard(chatId, 'У вас немає доступу!')
         }
 
         const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
         const customerChats = await chatService.getAllByCustomerId(user._id)
-        if(customerChats.length)    await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали вам :", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(customerChats.length)
+            await sendMessageWithKeyboard(chatId, "Писали вам :")
 
         for (let chatsKey in customerChats) {
             const advertisement = await advertisementService.getById(customerChats[chatsKey].advertisementId)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${customerChats[chatsKey].room}`)])
+
+            let buttonFixed = 'Фіксувати',
+                callbackButtonFixed = 'accept_fix_advertisement',
+                buttonReserved = 'Бронювати',
+                callbackButtonReserved = 'accept_reserve_advertisement'
+
+            if(advertisement.statusStage !== "open"){
+                if(advertisement.statusStage === "fixed"){
+                    buttonFixed = 'Зняти фіксацію'
+                    callbackButtonFixed = 'accept_open_advertisement'
+                }else
+                if(advertisement.statusStage === "reserved"){
+                    buttonReserved = 'Зняти резирвацію'
+                    callbackButtonReserved = 'accept_open_advertisement'
+                }else{
+                    return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+                }
+            }
+
+            await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${customerChats[chatsKey].room}`)],
+                [
+                    Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
+                    Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
+                ],
+                [Markup.button.callback('Видалити чат', 'delete_chat')]])
             )
         }
 
         const clientChats = await chatService.getAllByClientId(user._id)
         if(clientChats.length)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, "Писали ви :", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+            await sendMessageWithKeyboard(chatId, "Писали ви :")
 
         for (let chatsKey in clientChats) {
             const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування з оголошенням №${advertisement.number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)])
+            await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
+                [Markup.button.callback('Видалити чат', 'delete_chat')]])
             )
         }
     }catch (e){
@@ -417,32 +354,22 @@ bot.hears('Мої чати', async (ctx)=>{
 
 bot.hears('Мої пропозиції', async (ctx)=>{
     try{
-        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+        const chatId = ctx.update.message.from.id
+        // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
 
-        const userAuth =  await userService.getUserByTelegramId(ctx.update.message.from.id)
-        const accessToMenu = await userController.accessToMenu(ctx.update.message.from.id)
+        const userAuth =  await userService.getUserByTelegramId(chatId)
+        const accessToMenu = await userController.accessToMenu(chatId)
         if(userAuth.isBlocked || !accessToMenu){
-            return await ctx.reply('У вас немає доступу!', Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+            return await sendMessageWithKeyboard(chatId, 'У вас немає доступу!')
         }
-        const user = await userService.getUserByTelegramId(ctx.update.message.from.id)
+        const user = await userService.getUserByTelegramId(chatId)
 
         const requestChats = await chatService.findAllRequestsByUserId(user._id)
 
-        await bot.telegram.sendMessage(ctx.update.message.from.id, "Ваші пропозиції :", Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        if(requestChats.length === 0 )
+            return sendMessageWithKeyboard(chatId, "У вас немає жодних пропозицій!")
+
+        await sendMessageWithKeyboard(chatId, "Ваші пропозиції :")
 
         for (let chatsKey in requestChats) {
             const advertisement = await advertisementService.getById(requestChats[chatsKey].advertisementId)
@@ -460,30 +387,16 @@ bot.hears('Мої пропозиції', async (ctx)=>{
 bot.action('show_requests_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        console.log(ctx," message: ", ctx.update.callback_query.message.text)
         const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
         const advertisement = await advertisementService.getByNumber(numberAdvertisement)
         const requestsRate = await requestRateService.getByAdvertisementId(advertisement._id)
 
         if(requestsRate.length == 0 ){
-            return await bot.telegram.sendMessage(chatId, `Запитів на оголошення №${numberAdvertisement} не знайдено`, Markup
-                .keyboard([
-                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                    ['Канали', 'Мої чати']
-                ])
-                .oneTime()
-                .resize()
-            )
+            return await sendMessageWithKeyboard(chatId, `Запитів на оголошення №${numberAdvertisement} не знайдено`)
         }
 
-        await bot.telegram.sendMessage(chatId, `Всі запити на оголошення №${numberAdvertisement}`, Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-    )
+        await sendMessageWithKeyboard(chatId, `Всі запити на оголошення №${numberAdvertisement}`)
+
     for (let requestsRateKey in requestsRate) {
         const chat = await chatService.findById(requestsRate[requestsRateKey].chatId)
         const userClient = await userService.getUserById(chat.clientId)
@@ -506,22 +419,352 @@ bot.action('show_requests_rate', async (ctx)=> {
 
 })
 
+bot.action('show_advertisement_chats', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
+        const advertisement = await advertisementService.getByNumber(numberAdvertisement)
+
+        await showAllChatsByAdvertisementId(advertisement._id, chatId)
+
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
 bot.hears('/menu', async (ctx)=>{
     try{
-        await ctx.telegram.deleteMessage(ctx.update.message.from.id, ctx.update.message.message_id)
+        const chatId = ctx.update.message.from.id
+        await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
 
-        await ctx.reply('menu:', Markup
-            .keyboard([
-                ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
-                ['Канали', 'Мої чати']
-            ])
-            .oneTime()
-            .resize()
-        )
+        await sendMessageWithKeyboard(chatId, 'menu : ')
     }catch (e) {
         console.log('error: ', e)
     }
 })
+
+bot.action('fix_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[6].slice(1)
+        const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[3].slice(1)
+
+        let advertisement = await advertisementService.getByNumber(numberAdvertisement)
+
+        const chat = await chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
+        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'fixed', chat._id)
+
+        bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
+
+        ctx.reply('Чат успішно зафіксовано!')
+
+
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('reserve_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[6].slice(1)
+        const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[3].slice(1)
+
+        let advertisement = await advertisementService.getByNumber(numberAdvertisement)
+
+        const chat = await chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
+        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'reserved', chat._id)
+
+        bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
+
+        ctx.reply('Чат успішно зарезервовано!')
+
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('open_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[3].slice(1)
+
+        let advertisement = await advertisementService.getByNumber(numberAdvertisement)
+
+        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'open', "000000000000000000000000")
+
+        bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
+
+        ctx.reply('Чат успішно відкрито!')
+
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('accept_reserve_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
+
+        await bot.telegram.sendMessage(chatId, `Підтвердіть резервування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
+            Markup.button.callback('Підтвердити', 'reserve_advertisement'),
+            Markup.button.callback('Сукасувати', 'cancel_action')
+        ]))
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('accept_fix_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
+
+        await bot.telegram.sendMessage(chatId, `Підтвердіть фіксування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
+            Markup.button.callback('Підтвердити', 'fix_advertisement'),
+            Markup.button.callback('Сукасувати', 'cancel_action')
+        ]))
+    }catch (e){
+        console.log('error: ', e)
+    }
+
+})
+
+bot.action('accept_open_advertisement', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+
+        await bot.telegram.sendMessage(chatId, `Підтвердіть відкритя оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
+            Markup.button.callback('Підтвердити', 'open_advertisement'),
+            Markup.button.callback('Сукасувати', 'cancel_action')
+        ]))
+    }catch (e1){
+        try{
+            const chatId = ctx.update.callback_query.from.id
+            const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
+
+            await bot.telegram.sendMessage(chatId, `Підтвердіть відкритя оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
+                Markup.button.callback('Підтвердити', 'open_advertisement'),
+                Markup.button.callback('Сукасувати', 'cancel_action')
+            ]))
+        }catch (e2) {
+            console.log('error: ', e2)
+        }
+    }
+
+})
+
+bot.action('delete_chat', async (ctx)=> {
+    try{
+        const chatId = ctx.update.callback_query.from.id
+        let text = ctx.update.callback_query.message.text.split(' ')
+        const numberAdvertisement = text[text.length - 1].slice(1)
+
+        const advertisement = await advertisementService.getByNumber(numberAdvertisement)
+        const user = await userService.getUserByTelegramId(chatId)
+
+        if(text[1][0] === '#'){
+            const numberChat = text[1].slice(1)
+
+            const chat = chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
+
+            const userCustomer = chat.customerId
+            const userClient = chat.clientId
+
+            await chatService.delete(chat._id)
+
+            await sendMessageWithKeyboard(userCustomer, `Чат #${numberChat} щодо оголошення №${numberAdvertisement} було успішно видалено!`)
+            await sendMessageWithKeyboard(userClient, `Чат щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
+        }else{
+            const chat = chatService.getByClientIdAndAdvertisementId(user._id, advertisement._id)
+
+            const userCustomer = chat.customerId
+            const userClient = chat.clientId
+
+            await chatService.delete(chat._id)
+
+            await sendMessageWithKeyboard(userCustomer, `Чат #${chat.number} щодо оголошення №${numberAdvertisement} було видалено співрозмовником!`)
+            await sendMessageWithKeyboard(userClient, `Чат щодо оголошення №${numberAdvertisement} було успішно видалено!`)
+        }
+
+
+    }catch (e){
+       console.log('error: ', e)
+    }
+
+})
+
+        // FUNCTIONS \\
+
+async function sendMessageWithKeyboard(chatId, message){
+    return bot.telegram.sendMessage(chatId, message, Markup
+        .keyboard([
+            ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
+            ['Канали', 'Мої чати']
+        ])
+        .oneTime()
+        .resize()
+    )
+}
+
+async function showAllChatsByAdvertisementId(advertisementId, chatId){
+    const user = await userService.getUserByTelegramId(chatId)
+    const advertisement = await advertisementService.getById(advertisementId)
+
+    console.log(user._id.toString() , advertisement.userId.toString())
+
+    if(user._id.toString() !== advertisement.userId.toString()){
+        return await sendMessageWithKeyboard(chatId, 'Щось пішло не так!')
+    }
+
+    const chats = await chatService.getAllByCustomerIdAndAdvertisementId(user._id, advertisement._id)
+
+    if(chats.length === 0){
+        return await sendMessageWithKeyboard(chatId,`Чати до оголошення №${advertisement.number} відсутні!`)
+    }
+
+    await sendMessageWithKeyboard(chatId,`Всі чати до оголошення №${advertisement.number} :`)
+
+    let buttonFixed = 'Фіксувати',
+        callbackButtonFixed = 'accept_fix_advertisement',
+        buttonReserved = 'Бронювати',
+        callbackButtonReserved = 'accept_reserve_advertisement'
+
+    if(advertisement.statusStage !== "open"){
+        if(advertisement.statusStage === "fixed"){
+            buttonFixed = 'Зняти фіксацію'
+            callbackButtonFixed = 'accept_open_advertisement'
+        }else
+        if(advertisement.statusStage === "reserved"){
+            buttonReserved = 'Зняти резирвацію'
+            callbackButtonReserved = 'accept_open_advertisement'
+        }else{
+            return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+        }
+    }
+
+    for (let chatsKey in chats) {
+        await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${chats[chatsKey].room}`)],
+            [
+                Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
+                Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
+            ],
+            [Markup.button.callback('Видалити чат', 'delete_chat')]])
+        )
+    }
+
+
+}
+
+async function showAdvertisement(advertisementId, chatId){
+    const advertisement = await advertisementService.getById(advertisementId)
+    const city = await cityService.findById(advertisement.cityId)
+
+    if(advertisement.statusStage !== 'open'){
+
+        let button = 'Зняти бронювання',
+            callbackButton = 'accept_open_advertisement'
+        if(advertisement.statusStage === "reserved"){}else
+        if(advertisement.statusStage === "fixed"){
+                button = 'Зняти фіксацію'
+            }else{
+                return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+            }
+
+
+        if(advertisement.rate == 0){
+            let requestsRate = []
+            requestsRate = await requestRateService.getByAdvertisementId(advertisement._id)
+
+            await bot.telegram.sendMessage(chatId, `Оголошення №${advertisement.number }\n` +
+                `${advertisement.type}: ${advertisement.total} USDT trc20\n` +
+                `Місто: ${city.name}\n` +
+                `Частин: ${advertisement.part}\n` +
+                `Ставка: ${advertisement.rate}%\n` +
+                `Дійсне до: ${advertisement.deadline}\n` +
+                `${advertisement.extraInfo}\n` +
+                `\n` +
+                `У вас зараз [${requestsRate.length}] нових пропозицій`,
+                Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisement._id}`),
+                    Markup.button.callback('Скасувати', 'delete_advertisement')
+                ],
+                    [Markup.button.callback('Переглянути пропозиції', 'show_requests_rate')],
+                    [Markup.button.callback('Переглянути чати', 'show_advertisement_chats')],
+                    [Markup.button.callback(`${button}`, callbackButton)]])
+            )
+        }else{
+            await bot.telegram.sendMessage(chatId, `Оголошення №${advertisement.number }\n` +
+                `${advertisement.type}: ${advertisement.total} USDT trc20\n` +
+                `Місто: ${city.name}\n` +
+                `Частин: ${advertisement.part}\n` +
+                `Ставка: ${advertisement.rate}%\n` +
+                `Дійсне до: ${advertisement.deadline}\n` +
+                `${advertisement.extraInfo}`,
+                Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisement._id}`),
+                    Markup.button.callback('Скасувати', 'delete_advertisement')],
+                    [Markup.button.callback('Переглянути чати', 'show_advertisement_chats')],
+                    [Markup.button.callback(`${button}`, callbackButton)]
+                ])
+            )
+        }
+
+    }else{
+        if(advertisement.rate == 0){
+            let requestsRate = []
+            requestsRate = await requestRateService.getByAdvertisementId(advertisement._id)
+
+            await bot.telegram.sendMessage(chatId, `Оголошення №${advertisement.number }\n` +
+                `${advertisement.type}: ${advertisement.total} USDT trc20\n` +
+                `Місто: ${city.name}\n` +
+                `Частин: ${advertisement.part}\n` +
+                `Ставка: ${advertisement.rate}%\n` +
+                `Дійсне до: ${advertisement.deadline}\n` +
+                `${advertisement.extraInfo}\n` +
+                `\n` +
+                `У вас зараз [${requestsRate.length}] нових пропозицій`,
+                Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisement._id}`),
+                    Markup.button.callback('Скасувати', 'delete_advertisement')
+                ],
+                    [Markup.button.callback('Переглянути пропозиції', 'show_requests_rate')],
+                    [Markup.button.callback('Переглянути чати', 'show_advertisement_chats')]])
+            )
+        }else{
+            await bot.telegram.sendMessage(chatId, `Оголошення №${advertisement.number }\n` +
+                `${advertisement.type}: ${advertisement.total} USDT trc20\n` +
+                `Місто: ${city.name}\n` +
+                `Частин: ${advertisement.part}\n` +
+                `Ставка: ${advertisement.rate}%\n` +
+                `Дійсне до: ${advertisement.deadline}\n` +
+                `${advertisement.extraInfo}`,
+                Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Редагувати`, `${process.env.ADVERTISEMENT_REDACT_URL}${advertisement._id}`),
+                    Markup.button.callback('Скасувати', 'delete_advertisement')],
+                    [Markup.button.callback('Переглянути чати', 'show_advertisement_chats')]
+                ])
+            )
+        }
+    }
+
+
+
+}
+
 
         // SERVER \\
 

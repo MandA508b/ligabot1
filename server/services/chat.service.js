@@ -2,21 +2,26 @@ const Chat = require('../../models/chat.model')
 const ApiError = require('../errors/api.error')
 const bot = require('../../telgram/telegram')
 const teamService = require('./team.service')
-const advertisementService = require('./advertisement.service')
+const Advertisement = require('../../models/advertisement.model')
 const {Markup} = require("telegraf");
 const requestRateService = require('./requestRate.service')
+const chatDataService = require('./chatData.service')
 
 class chatService{
 
-        async create(advertisementId, customerId, clientId, accepted){
+    async create(advertisementId, customerId, clientId, accepted){
         try{
             const candidate = await Chat.findOne({advertisementId, customerId, clientId})
             if(candidate){
                 return candidate
             }
             const room = "" + advertisementId + customerId + clientId
-
-            const chat = await Chat.create({advertisementId, customerId, clientId, room, accepted})
+            let number = 1
+            const chats = await this.getAllByCustomerIdAndAdvertisementId(customerId, advertisementId)
+            if( chats.length){
+                number = Number(chats[chats.length - 1].number) + Number(1)
+            }
+            const chat = await Chat.create({advertisementId, customerId, clientId, room, accepted, number})
 
             return chat
         }catch (e) {
@@ -27,6 +32,7 @@ class chatService{
     async delete(chatId){
         try{
             const chat = await Chat.findByIdAndDelete(chatId)
+            await chatDataService.deleteByChatName(chat.room)
 
             return chat
         }catch (e) {
@@ -94,7 +100,7 @@ class chatService{
             const userCustomer = chat.customerId
 
             const teamClient = await teamService.findByTeamId(userClient.teamId)
-            const advertisement = await advertisementService.getById(advertisementId)
+            const advertisement = await Advertisement.findById(advertisementId)
 
             if(!teamClient || !advertisement){
                 throw ApiError.notFound('!teamClient || !advertisement')
@@ -131,6 +137,36 @@ class chatService{
         }
     }
 
+    async getAllByCustomerIdAndAdvertisementId(customerId, advertisementId){
+        try{
+            const chats = await Chat.find({ customerId: customerId, advertisementId: advertisementId, accepted: true})
+
+            return chats
+        }catch (e) {
+            console.log("error: ", e)
+        }
+    }
+
+    async getByClientIdAndAdvertisementId(clientId, advertisementId){
+        try{
+            const chats = await Chat.findOne({ clientId: clientId, advertisementId: advertisementId, accepted: true})
+
+            return chats
+        }catch (e) {
+            console.log("error: ", e)
+        }
+    }
+
+    async getByNumberAndAdvertisementId(number, advertisementId){
+        const chat = await Chat.findOne({number, advertisementId})
+        return chat
+    }
+
+    async getByAdvertisementId(advertisementId){
+        const chats = await Chat.find({advertisementId})
+
+        return chats
+    }
 
 }
 

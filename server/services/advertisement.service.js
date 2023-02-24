@@ -1,12 +1,16 @@
 const Advertisement = require('../../models/advertisement.model')
 const userService = require('../services/user.service')
+const chatService = require('./chat.service')
 
 class advertisementController{
 
     async create(userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo){
         try{
             const Advertisements = await Advertisement.find()
-            const number = Advertisements.length+1
+            let number = 1
+            if(Advertisements.length)
+            number = Number(Advertisements[Advertisements.length-1].number) + Number(1)
+
             const advertisement = await Advertisement.create({number,userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo})
 
             return advertisement
@@ -15,9 +19,20 @@ class advertisementController{
         }
     }
 
+    async addChannelMessageId(channelMessageId, advertisementId){
+        const advertisement = await Advertisement.findByIdAndUpdate(advertisementId, channelMessageId)
+
+        return advertisement
+    }
+
     async delete(advertisementId){
         try{
             const advertisement = await Advertisement.findByIdAndDelete(advertisementId)
+            const chats = await chatService.getByAdvertisementId(advertisementId)
+
+            for (let chatsKey in chats) {
+                await chatService.delete(chats[chatsKey]._id)
+            }
 
             return advertisement
         }catch (e) {
@@ -83,6 +98,11 @@ class advertisementController{
         }
     }
 
+    async switchStatusStage(advertisementId, statusStage, linkedChat){
+        const advertisement = await Advertisement.findOneAndUpdate({_id: advertisementId}, {statusStage, linkedChat})
+        console.log({advertisement})
+        return advertisement
+    }
 
 }
 

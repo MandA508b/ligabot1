@@ -20,6 +20,10 @@ const schema = new db.Schema({
     accepted: {
         type: Boolean,
         default: false
+    },
+    number: {
+        type: Number,
+        required: true
     }
 })
 

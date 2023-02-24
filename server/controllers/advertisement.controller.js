@@ -9,7 +9,7 @@ class advertisementController{
     async create(req, res, next){
         try{
             const {userId,leagueId,type,cityId,total,part,rate,deadline,extraInfo} = req.body
-            if(!userId || !leagueId || !type || !cityId || !total || rate == undefined || !deadline){
+            if(!userId || !leagueId || !type || !cityId || total == undefined || rate == undefined || !deadline){
                 return next(ApiError.badRequest('!userId || !type ||! cityId || !total || !rate || !deadline'))
             }
 
@@ -29,7 +29,9 @@ class advertisementController{
                         Markup.inlineKeyboard([
                             Markup.button.callback('Запропунувати ціну', `send_rate_request`)
                         ])
-                    );
+                    ).then((m) => {
+                        advertisementService.addChannelMessageId(m.message_id, advertisement._id)
+                    });
                }else{
                    await bot.telegram.sendMessage(channel.channelId, `Оголошення №${advertisement.number}\n`+
                        `${advertisement.type}: ${advertisement.total} USDT trc20\n`+
@@ -39,9 +41,11 @@ class advertisementController{
                        `Дійсне до: ${advertisement.deadline}\n`+
                        `${advertisement.extraInfo}`,
                        Markup.inlineKeyboard([
-                           Markup.button.callback('Написати', `send_message`)
+                           Markup.button.callback('Написати', `create_chat`)
                        ])
-                   );
+                   ).then((m) => {
+                       advertisementService.addChannelMessageId(m.message_id, advertisement._id)
+                   });
                }
             }
 

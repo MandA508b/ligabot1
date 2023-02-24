@@ -47,6 +47,18 @@ const schema = new db.Schema({
     date: {
         type: Date,
         default: Date.now()
+    },
+    statusStage: {// open, reserved, fixed
+        type: String,
+        default: "open"
+    },
+    linkedChat: {
+        type: db.Schema.Types.ObjectId,
+        default: "000000000000000000000000"
+    },
+    channelMessageId: {
+        type: Number,
+        default: 0
     }
 })
 

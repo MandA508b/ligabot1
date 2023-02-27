@@ -6,6 +6,7 @@ const Advertisement = require('../../models/advertisement.model')
 const {Markup} = require("telegraf");
 const requestRateService = require('./requestRate.service')
 const chatDataService = require('./chatData.service')
+const reportService = require('./report.service')
 
 class chatService{
 
@@ -33,6 +34,7 @@ class chatService{
         try{
             const chat = await Chat.findByIdAndDelete(chatId)
             await chatDataService.deleteByChatName(chat.room)
+            await reportService.delete(chatId)
 
             return chat
         }catch (e) {

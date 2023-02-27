@@ -8,6 +8,7 @@ const cityRouter = require('./city.router')
 const channelRouter = require('./channel.router')
 const advertisementRouter = require('./advertisement.router')
 const chatRouter = require('./chat.router')
+const reportRouter = require('./report.router')
 
 router.use('/user', userRouter)
 router.use('/admin', adminRouter)
@@ -17,5 +18,6 @@ router.use('/city',cityRouter)
 router.use('/advertisement',advertisementRouter)
 router.use('/channel',channelRouter)
 router.use('/chat', chatRouter)
+router.use('/report', reportRouter)
 
 module.exports = router

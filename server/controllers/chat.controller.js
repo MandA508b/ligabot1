@@ -54,7 +54,19 @@ class chatController{
         }
     }
 
+    async findByChatId(req, res, next){
+        try{
+            const {chatId} = req.body
+            if(!chatId){
+                return next(ApiError.badRequest('!chatId'))
+            }
+            const request = await chatService.findById(chatId)
 
+            return res.json(request)
+        }catch (e) {
+            next(e)
+        }
+    }
 
 }
 

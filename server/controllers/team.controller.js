@@ -104,6 +104,21 @@ class teamController{
         }
     }
 
+    async addScore(req, res, next){
+        try{
+            const {teamId1, teamId2} = req.body
+
+            if(!teamId1 || !teamId2){
+                return next(ApiError.badRequest('!teamId1 || !teamId2'))
+            }
+            const teamScore = await teamService.addScore(teamId1, teamId2)
+
+            return res.json(teamScore)
+        }catch (e) {
+            next(e)
+        }
+    }
+
 }
 
 module.exports = new teamController()

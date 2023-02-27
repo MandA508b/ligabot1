@@ -12,6 +12,10 @@ const schema = new db.Schema({
     leagueId: {
         type: db.Schema.Types.ObjectId,
         required: true
+    },
+    score :{
+        type:Number,
+        default: 0
     }
 })
 

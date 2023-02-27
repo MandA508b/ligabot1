@@ -1,5 +1,8 @@
 const Team = require('../../models/team.model')
 const User = require("../../models/user.model");
+const League = require('../../models/league.model')
+
+const ApiError = require('../errors/api.error')
 
 class teamController{
 
@@ -85,6 +88,29 @@ class teamController{
         }catch (e) {
             console.log("error: ", e)
         }
+    }
+
+    async addScore(teamId1, teamId2){
+        const team1 = await Team.findById(teamId1)
+        const team2 = await Team.findById(teamId2)
+
+        if(!team1 || !team2){
+            throw ApiError.notFound('!team1 || !team2')
+        }
+
+        const leagueId1 = await League.findById(team1.leagueId)
+        const leagueId2 = await League.findById(team2.leagueId)
+
+        if(leagueId1.toString() === leagueId2.toString()){
+            team1.score = Number(team1.score) + Number(1)
+            team2.score = Number(team2.score) + Number(1)
+
+            await team1.save()
+            await team2.save()
+        }
+
+        return ({team1Score: team1.score,team2Score: team2.score })
+
     }
 
 }

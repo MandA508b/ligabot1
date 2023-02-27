@@ -1,4 +1,5 @@
 const Chat = require('../../models/chat.model')
+const User = require('../../models/user.model')
 const ApiError = require('../errors/api.error')
 const bot = require('../../telgram/telegram')
 const teamService = require('./team.service')
@@ -92,14 +93,14 @@ class chatService{
 
         try{
             const chat = await this.findById(chatId)
-            const requestRate = await requestRateService.create(chatId, advertisementId)
+            const requestRate = await requestRateService.create(chatId, advertisementId, rate)
 
             if(!chat){
                 throw ApiError.notFound('!chat')
             }
 
-            const userClient = chat.clientId
-            const userCustomer = chat.customerId
+            const userClient = await User.findById(chat.clientId)
+            const userCustomer = await User.findById(chat.customerId)
 
             const teamClient = await teamService.findByTeamId(userClient.teamId)
             const advertisement = await Advertisement.findById(advertisementId)
@@ -108,14 +109,14 @@ class chatService{
                 throw ApiError.notFound('!teamClient || !advertisement')
             }
 
-            await bot.telegram.sendMessage(userCustomer, `Запит №${requestRate.number} : \n`+
+            await bot.telegram.sendMessage(userCustomer.telegramId, `Запит №${requestRate.number} : \n`+
             `Користувач з команди ${teamClient.name} пропунує ставку ${rate} на вашу заявку №${advertisement.number}`,
                 Markup.inlineKeyboard([
                     Markup.button.callback(`Прийняти`, `accept_rate`),
                     Markup.button.callback(`Відмовити`, `cancel_rate`)
             ]))
 
-            await bot.telegram.sendMessage(userClient, `Запит успішно надіслоний, чекайте на зворотню відповідь!\n`)
+            await bot.telegram.sendMessage(userClient.telegramId, `Запит успішно надіслоний, чекайте на зворотню відповідь!\n`)
 
         }catch (e) {
             console.log('error: ', e)

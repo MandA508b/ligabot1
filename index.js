@@ -332,7 +332,9 @@ bot.hears('Мої чати', async (ctx)=>{
                     Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                     Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
                 ],
-                [Markup.button.callback('Видалити чат', 'delete_chat')]])
+                [Markup.button.callback('Видалити чат', 'delete_chat')],
+                [Markup.button.callback('Викликати арбітраж', 'report')],
+                [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
             )
         }
 
@@ -344,7 +346,9 @@ bot.hears('Мої чати', async (ctx)=>{
             const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
             await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
                 Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
-                [Markup.button.callback('Видалити чат', 'delete_chat')]])
+                [Markup.button.callback('Видалити чат', 'delete_chat')],
+                [Markup.button.callback('Викликати арбітраж', 'report')],
+                [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
             )
         }
     }catch (e){
@@ -662,7 +666,9 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
                 Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                 Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
             ],
-            [Markup.button.callback('Видалити чат', 'delete_chat')]])
+            [Markup.button.callback('Видалити чат', 'delete_chat')],
+            [Markup.button.callback('Викликати арбітраж', 'report')],
+            [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
         )
     }
 

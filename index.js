@@ -354,7 +354,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
             )
         }
     }catch (e){

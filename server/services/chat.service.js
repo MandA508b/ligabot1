@@ -95,6 +95,9 @@ class chatService{
             const chat = await this.findById(chatId)
             const requestRate = await requestRateService.create(chatId, advertisementId, rate)
 
+            console.log("-----------")
+            console.log({requestRate})
+
             if(!chat){
                 throw ApiError.notFound('!chat')
             }
@@ -102,7 +105,6 @@ class chatService{
             const userClient = await User.findById(chat.clientId)
             const userCustomer = await User.findById(chat.customerId)
 
-            console.log('sendRate: ',{customer: userCustomer._id, client: userClient._id})
 
             const teamClient = await teamService.findByTeamId(userClient.teamId)
             const advertisement = await Advertisement.findById(advertisementId)

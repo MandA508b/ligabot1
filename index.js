@@ -220,9 +220,8 @@ bot.action('cancel_action', async (ctx)=> {
 bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
+        console.log({chatId})
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1))
-
-        console.log({requestRateNumber})
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
         const advertisement = await advertisementService.getByNumber(advertisementNumber)
@@ -238,7 +237,7 @@ bot.action('accept_rate', async (ctx)=> {
         //delete requestRate
         await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
         console.log("chatId: ", chat._id)
-        console.log(chat)
+        console.log({chat})
         chat = await chatService.acceptedToTrue(chat._id)
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([

@@ -127,7 +127,7 @@ class chatService{
     }
 
     async acceptedToTrue(chatId){
-        const chat = await Chat.findOneAndUpdate(chatId, {accepted: true})
+        const chat = await Chat.findOneAndUpdate({_id: chatId}, {accepted: true})
 
         return chat
     }

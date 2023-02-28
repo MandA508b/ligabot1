@@ -102,7 +102,7 @@ class chatService{
             const userClient = await User.findById(chat.clientId)
             const userCustomer = await User.findById(chat.customerId)
 
-            console.log({customer: userCustomer._id, client: userClient._id})
+            console.log('sendRate: ',{customer: userCustomer._id, client: userClient._id})
 
             const teamClient = await teamService.findByTeamId(userClient.teamId)
             const advertisement = await Advertisement.findById(advertisementId)

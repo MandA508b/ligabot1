@@ -232,19 +232,19 @@ bot.action('accept_rate', async (ctx)=> {
         const requestRate = await requestRateService.findByNumber(requestRateNumber, advertisement._id)
         let chat = await chatService.findById(requestRate.chatId)
 
-        const userClient = chat.clientId
-        const userCustomer = chat.customerId
+        const userClient = await userService.getUserById(chat.clientId)
+        const userCustomer = await userService.getUserById(chat.customerId)
 
         //delete requestRate
         await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
         chat = await chatService.acceptedToTrue(chat._id)
 
-        await ctx.telegram.sendMessage(userClient,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([
+        await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),
             ])
         )
 
-        await ctx.telegram.sendMessage(userCustomer, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
+        await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`)
             ])
         )

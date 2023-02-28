@@ -237,6 +237,8 @@ bot.action('accept_rate', async (ctx)=> {
 
         //delete requestRate
         await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
+        console.log("chatId: ", chat._id)
+        console.log(chat)
         chat = await chatService.acceptedToTrue(chat._id)
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([

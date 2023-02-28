@@ -229,8 +229,9 @@ bot.action('accept_rate', async (ctx)=> {
         if(!advertisement || !requestRateNumber)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
 
         const requestRate = await requestRateService.findByNumber(requestRateNumber, advertisement._id)
-        if(!requestRate)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
         console.log({requestRate})
+
+        if(!requestRate)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
         let chat = await chatService.findById(requestRate.chatId)
 
         const userClient = await userService.getUserById(chat.clientId)

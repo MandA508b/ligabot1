@@ -241,7 +241,7 @@ bot.action('accept_rate', async (ctx)=> {
         //delete requestRate
         await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
         console.log("chatId: ", chat._id)
-        console.log({chat})
+        console.log("chat: ",chat)
         chat = await chatService.acceptedToTrue(chat._id)
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([
@@ -340,7 +340,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 ],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
             )
         }
 
@@ -354,7 +354,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
             )
         }
     }catch (e){
@@ -674,7 +674,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
             ],
             [Markup.button.callback('Видалити чат', 'delete_chat')],
             [Markup.button.callback('Викликати арбітраж', 'report')],
-            [Markup.button.callback('Позначити угоду як завершену успішно', 'report')]])
+            [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
         )
     }
 

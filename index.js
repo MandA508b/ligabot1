@@ -221,10 +221,9 @@ bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
 
-        console.log("text: ",ctx.update.callback_query.message.text, ctx.update.callback_query.message.text.split(' ')[1])
+        console.log("text: ",ctx.update.callback_query.message.text, ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1])
 
-        let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1])
-        requestRateNumber = requestRateNumber.slice(1, requestRateNumber.length-2)
+        let requestRateNumber = Number(ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1])
 
         console.log({requestRateNumber})
 

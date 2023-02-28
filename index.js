@@ -197,8 +197,6 @@ bot.action('send_rate_request', async (ctx)=> {
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
 
-        console.log({customer: advertisement.userId, client: userClient._id})
-
         await ctx.telegram.sendMessage(userClient.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')
@@ -222,8 +220,13 @@ bot.action('cancel_action', async (ctx)=> {
 bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
+
+        console.log("text: ",ctx.update.callback_query.message.text, ctx.update.callback_query.message.text.split(' ')[1])
+
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split(' ')[1])
         requestRateNumber = requestRateNumber.slice(1, requestRateNumber.length-2)
+
+        console.log({requestRateNumber})
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
         const advertisement = await advertisementService.getByNumber(advertisementNumber)

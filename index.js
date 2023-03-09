@@ -522,7 +522,7 @@ bot.action('open_advertisement', async (ctx)=> {
 bot.action('accept_reserve_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
         const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть резервування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
@@ -538,7 +538,7 @@ bot.action('accept_reserve_advertisement', async (ctx)=> {
 bot.action('accept_fix_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
         const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть фіксування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
@@ -554,7 +554,7 @@ bot.action('accept_fix_advertisement', async (ctx)=> {
 bot.action('accept_open_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть відкритя оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
             Markup.button.callback('Підтвердити', 'open_advertisement'),

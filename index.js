@@ -350,20 +350,12 @@ bot.hears('Мої чати', async (ctx)=>{
 
         for (let chatsKey in clientChats) {
             const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
-            if(advertisement.statusStage !== 'open' && advertisement.linkedChat.toString() !== chatId.toString()){
-                await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number} (було зафіксоване/зарезервоване з іншим учасником)`, Markup.inlineKeyboard([
-                    [Markup.button.callback('Видалити чат', 'delete_chat')],
-                    [Markup.button.callback('Викликати арбітраж', 'report')],
-                    [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
-                )
-            }else {
-                await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
-                    [Markup.button.callback('Видалити чат', 'delete_chat')],
-                    [Markup.button.callback('Викликати арбітраж', 'report')],
-                    [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
-                )
-            }
+            await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
+                [Markup.button.callback('Видалити чат', 'delete_chat')],
+                [Markup.button.callback('Викликати арбітраж', 'report')],
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
+            )
         }
     }catch (e){
         console.log('error: ', e)

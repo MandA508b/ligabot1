@@ -333,7 +333,7 @@ bot.hears('Мої чати', async (ctx)=>{
             }
 
             await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}`)],
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chatId}`)],
                 [
                     Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                     Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
@@ -351,7 +351,7 @@ bot.hears('Мої чати', async (ctx)=>{
         for (let chatsKey in clientChats) {
             const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
             await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}`)],
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chatId}`)],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
                 [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
@@ -667,7 +667,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
 
     for (let chatsKey in chats) {
         await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}`)],
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chatId}`)],
             [
                 Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                 Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),

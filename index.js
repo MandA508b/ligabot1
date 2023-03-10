@@ -127,11 +127,16 @@ bot.action('create_chat', async (ctx)=> {
         const candidat = await chatService.getByClientIdAndAdvertisementId(userClient._id, advertisement._id)
 
         if(candidat){
-            return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
-                [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}`)],
-                [Markup.button.callback('Видалити чат', 'delete_chat')]
-                ])
-            )
+            try{
+                const chat = await chatService.getByRoom(candidat.room)
+                return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
+                        [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&linkedChat=${candidat.linkedChat}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)],
+                        [Markup.button.callback('Видалити чат', 'delete_chat')]
+                    ])
+                )
+            }catch (e) {
+                return console.log("error: ", e)
+            }
         }
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, true)
@@ -148,13 +153,13 @@ bot.action('create_chat', async (ctx)=> {
         }
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
-            [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`)],
+            [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&linkedChat=${chat.linkedChat}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)],
             [Markup.button.callback('Видалити чат', 'delete_chat')]
             ])
         )
 
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Чат #${chat.number}\n\nХтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}`)
+                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&linkedChat=${chat.linkedChat}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
             ],
             [
                 Markup.button.callback(`Бронювати`, `accept_reserve_advertisement`),
@@ -333,9 +338,8 @@ bot.hears('Мої чати', async (ctx)=>{
                     }
                 }
                 const chat = await chatService.getByRoom(customerChats[chatsKey].room)
-                console.log(`linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chat._id}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chat._id}`)],
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)],
                     [
                         Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                         Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
@@ -357,9 +361,8 @@ bot.hears('Мої чати', async (ctx)=>{
             try{
                 const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
                 const chat = await chatService.getByRoom(clientChats[chatsKey].room)
-                console.log(`linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chat._id}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chat._id}`)],
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${advertisement.statusStage}&$chatId=${chat._id}`)],
                     [Markup.button.callback('Видалити чат', 'delete_chat')],
                     [Markup.button.callback('Викликати арбітраж', 'report')],
                     [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
@@ -679,9 +682,8 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
     for (let chatsKey in chats) {
         try{
             const chat = await chatService.getByRoom(chats[chatsKey].room)
-            console.log(`linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chat._id}`)
             await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chat._id}`)],
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)],
                 [
                     Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                     Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),

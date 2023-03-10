@@ -522,7 +522,7 @@ bot.action('open_advertisement', async (ctx)=> {
 bot.action('accept_reserve_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
         const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть резервування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
@@ -538,7 +538,7 @@ bot.action('accept_reserve_advertisement', async (ctx)=> {
 bot.action('accept_fix_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
         const numberChat = ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть фіксування чату #${numberChat} на оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
@@ -554,7 +554,7 @@ bot.action('accept_fix_advertisement', async (ctx)=> {
 bot.action('accept_open_advertisement', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[3].slice(1)
+        const numberAdvertisement = ctx.update.callback_query.message.text.split('\n')[2].split(' ')[6].slice(1)
 
         await bot.telegram.sendMessage(chatId, `Підтвердіть відкритя оголошення №${numberAdvertisement}`,Markup.inlineKeyboard([
             Markup.button.callback('Підтвердити', 'open_advertisement'),
@@ -794,7 +794,7 @@ const PORT = 5000 || process.env.PORT
 app.use(express.json())
 app.use(cors({
     credentials: true,
-    origin: ['http://localhost:3000','https://heroic-profiterole-cc695c.netlify.app', 'https://main--voluble-pegasus-6a9597.netlify.app','https://neon-kulfi-303418.netlify.app']
+    origin: ['https://bot-web-app.telegram-crm.work', 'https://admin-web-liga-bot.telegram-crm.work','https://chatclient-liga-bot.telegram-crm.work','https://chatclient.ligabot.pp.ua','https://admin.ligabot.pp.ua','http://localhost:3000','https://heroic-profiterole-cc695c.netlify.app', 'https://main--voluble-pegasus-6a9597.netlify.app','https://neon-kulfi-303418.netlify.app']
 }))
 app.use('/', router)
 app.use(errorMiddleware)

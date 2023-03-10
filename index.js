@@ -791,7 +791,7 @@ const PORT = 5000 || process.env.PORT
 app.use(express.json())
 app.use(cors({
     credentials: true,
-    origin: ['https://admin-web-liga-bot.telegram-crm.work','https://chatclient-liga-bot.telegram-crm.work','https://chatclient.ligabot.pp.ua','https://admin.ligabot.pp.ua','http://localhost:3000','https://heroic-profiterole-cc695c.netlify.app', 'https://main--voluble-pegasus-6a9597.netlify.app','https://neon-kulfi-303418.netlify.app']
+    origin: ['https://bot-web-app.telegram-crm.work', 'https://admin-web-liga-bot.telegram-crm.work','https://chatclient-liga-bot.telegram-crm.work','https://chatclient.ligabot.pp.ua','https://admin.ligabot.pp.ua','http://localhost:3000','https://heroic-profiterole-cc695c.netlify.app', 'https://main--voluble-pegasus-6a9597.netlify.app','https://neon-kulfi-303418.netlify.app']
 }))
 app.use('/', router)
 app.use(errorMiddleware)

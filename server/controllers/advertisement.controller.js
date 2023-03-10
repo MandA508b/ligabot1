@@ -4,6 +4,7 @@ const ApiError = require('../errors/api.error')
 const bot = require('../../telgram/telegram')
 const {Markup} = require("telegraf");
 const channelService =require('../services/channel.service')
+const userService = require('../services/user.service')
 
 class advertisementController{
     async create(req, res, next){
@@ -27,7 +28,7 @@ class advertisementController{
                         `Дійсне до: ${advertisement.deadline}\n`+
                         `${advertisement.extraInfo}`,
                         Markup.inlineKeyboard([
-                            Markup.button.callback('Запропунувати ціну', `send_rate_request`)
+                            Markup.button.callback('Запропонувати ціну', `send_rate_request`)
                         ])
                     ).then((m) => {
                         advertisementService.addChannelMessageId(m.message_id, advertisement._id)
@@ -48,6 +49,19 @@ class advertisementController{
                    });
                }
             }
+
+            const user = await userService.getUserById(userId)
+
+            await bot.telegram.sendMessage(user.telegramId, `Ваше оголошення №${advertisement.number} було успішно додано!`, Markup
+                .keyboard([
+                    ['Додати оголошення', 'Мої оголошення', 'Мої пропозиції'],
+                    ['Канали', 'Мої чати']
+                ])
+                .oneTime()
+                .resize()
+            ).then((m) => {
+                advertisementService.addChannelMessageId(m.message_id, advertisement._id)
+            });
 
             return res.json({advertisement})
         }catch (e) {

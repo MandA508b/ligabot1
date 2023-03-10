@@ -95,9 +95,6 @@ class chatService{
             const chat = await this.findById(chatId)
             const requestRate = await requestRateService.create(chatId, advertisementId, rate)
 
-            console.log("-----------")
-            console.log({requestRate})
-
             if(!chat){
                 throw ApiError.notFound('!chat')
             }
@@ -120,7 +117,7 @@ class chatService{
                     Markup.button.callback(`Відмовити`, `cancel_rate`)
             ]))
 
-            await bot.telegram.sendMessage(userClient.telegramId, `Запит успішно надіслоний, чекайте на зворотню відповідь!\n`)
+            await bot.telegram.sendMessage(userClient.telegramId, `Запит успішно надісланий, чекайте на зворотню відповідь!\n`)
 
         }catch (e) {
             console.log('error: ', e)

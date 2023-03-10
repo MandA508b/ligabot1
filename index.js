@@ -138,12 +138,12 @@ bot.action('create_chat', async (ctx)=> {
 
         {
             const cityName = await cityService.findById(advertisement.cityId)
-            let chatData = await chatDataService.create(chat.room, "Admin", `Оголошення №${advertisement.number}`)
-            chatData = await chatDataService.create(chat.room, "Admin", `${advertisement.type}: ${advertisement.total}USDT trc20`)
-            chatData = await chatDataService.create(chat.room, "Admin", `Місто: ${cityName.name}`)
-            chatData = await chatDataService.create(chat.room, "Admin", `Частин: ${advertisement.part}`)
-            chatData = await chatDataService.create(chat.room, "Admin", `Ставка: ${advertisement.rate}%`)
-            chatData = await chatDataService.create(chat.room, "Admin", `Дійсне до: ${advertisement.deadline}`)
+            let chatData = await chatDataService.create(chat.room, "LigaBot", `Оголошення №${advertisement.number}`)
+            chatData = await chatDataService.create(chat.room, "LigaBot", `${advertisement.type}: ${advertisement.total}USDT trc20`)
+            chatData = await chatDataService.create(chat.room, "LigaBot", `Місто: ${cityName.name}`)
+            chatData = await chatDataService.create(chat.room, "LigaBot", `Частин: ${advertisement.part}`)
+            chatData = await chatDataService.create(chat.room, "LigaBot", `Ставка: ${advertisement.rate}%`)
+            chatData = await chatDataService.create(chat.room, "LigaBot", `Дійсне до: ${advertisement.deadline}`)
 
         }
 
@@ -154,7 +154,7 @@ bot.action('create_chat', async (ctx)=> {
         )
 
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Чат #${chat.number}\n\nХтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`)
+                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}`)
             ],
             [
                 Markup.button.callback(`Бронювати`, `accept_reserve_advertisement`),
@@ -192,12 +192,12 @@ bot.action('send_rate_request', async (ctx)=> {
         const userCustomer = await userService.getUserById(advertisement.userId)
 
         if(userCustomer._id.toString() === userClient._id.toString()){
-            return await sendMessageWithKeyboard(chatId, 'Ви не можете запропунувати ціну самі собі !')
+            return await sendMessageWithKeyboard(chatId, 'Ви не можете запропонувати ціну самі собі !')
         }
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
 
-        await ctx.telegram.sendMessage(userClient.telegramId,`Запропунувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
+        await ctx.telegram.sendMessage(userClient.telegramId,`Запропонувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')
             ])
@@ -250,7 +250,7 @@ bot.action('accept_rate', async (ctx)=> {
         )
 
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=customer&room=${chat.room}`)
+                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}`)
             ])
         )
 
@@ -333,7 +333,7 @@ bot.hears('Мої чати', async (ctx)=>{
             }
 
             await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${customerChats[chatsKey].room}`)],
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}`)],
                 [
                     Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                     Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
@@ -468,7 +468,7 @@ bot.action('fix_advertisement', async (ctx)=> {
 
         bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
 
-        ctx.reply('Чат успішно зафіксовано!')
+        ctx.reply(`Чат #${numberChat} на оголошення №${advertisement.number} успішно зафіксовано!`)
 
 
     }catch (e){
@@ -491,7 +491,7 @@ bot.action('reserve_advertisement', async (ctx)=> {
 
         bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
 
-        ctx.reply('Чат успішно зарезервовано!')
+        ctx.reply(`Чат #${numberChat} на оголошення №${advertisement.number} успішно зарезервовано!`)
 
     }catch (e){
         console.log('error: ', e)
@@ -511,7 +511,7 @@ bot.action('open_advertisement', async (ctx)=> {
 
         bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
 
-        ctx.reply('Чат успішно відкрито!')
+        ctx.reply(`Чат на оголошення №${numberAdvertisement} успішно відкрито!`)
 
     }catch (e){
         console.log('error: ', e)
@@ -667,7 +667,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
 
     for (let chatsKey in chats) {
         await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=customer&room=${chats[chatsKey].room}`)],
+            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}`)],
             [
                 Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                 Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
@@ -777,6 +777,9 @@ async function showAdvertisement(advertisementId, chatId){
 
 }
 
+async function openChat(chatId, url){
+    await bot.telegram.open(url)
+}
 
         // SERVER \\
 

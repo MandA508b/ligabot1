@@ -333,6 +333,7 @@ bot.hears('Мої чати', async (ctx)=>{
                     }
                 }
                 const chat = await chatService.getByRoom(customerChats[chatsKey].room)
+                console.log(`linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chat._id}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
                     Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chat._id}`)],
                     [
@@ -356,6 +357,7 @@ bot.hears('Мої чати', async (ctx)=>{
             try{
                 const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
                 const chat = await chatService.getByRoom(clientChats[chatsKey].room)
+                console.log(`linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chat._id}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
                     Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chat._id}`)],
                     [Markup.button.callback('Видалити чат', 'delete_chat')],
@@ -677,6 +679,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
     for (let chatsKey in chats) {
         try{
             const chat = await chatService.getByRoom(chats[chatsKey].room)
+            console.log(`linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chat._id}`)
             await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
                 Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chat._id}`)],
                 [

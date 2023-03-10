@@ -312,36 +312,40 @@ bot.hears('Мої чати', async (ctx)=>{
             await sendMessageWithKeyboard(chatId, "Писали вам :")
 
         for (let chatsKey in customerChats) {
-            const advertisement = await advertisementService.getById(customerChats[chatsKey].advertisementId)
+            try{
+                const advertisement = await advertisementService.getById(customerChats[chatsKey].advertisementId)
 
-            let buttonFixed = 'Фіксувати',
-                callbackButtonFixed = 'accept_fix_advertisement',
-                buttonReserved = 'Бронювати',
-                callbackButtonReserved = 'accept_reserve_advertisement'
+                let buttonFixed = 'Фіксувати',
+                    callbackButtonFixed = 'accept_fix_advertisement',
+                    buttonReserved = 'Бронювати',
+                    callbackButtonReserved = 'accept_reserve_advertisement'
 
-            if(advertisement.statusStage !== "open"){
-                if(advertisement.statusStage === "fixed"){
-                    buttonFixed = 'Зняти фіксацію'
-                    callbackButtonFixed = 'accept_open_advertisement'
-                }else
-                if(advertisement.statusStage === "reserved"){
-                    buttonReserved = 'Зняти резирвацію'
-                    callbackButtonReserved = 'accept_open_advertisement'
-                }else{
-                    return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+                if(advertisement.statusStage !== "open"){
+                    if(advertisement.statusStage === "fixed"){
+                        buttonFixed = 'Зняти фіксацію'
+                        callbackButtonFixed = 'accept_open_advertisement'
+                    }else
+                    if(advertisement.statusStage === "reserved"){
+                        buttonReserved = 'Зняти резирвацію'
+                        callbackButtonReserved = 'accept_open_advertisement'
+                    }else{
+                        return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
+                    }
                 }
+                const chat = await chatService.getByRoom(customerChats[chatsKey].room)
+                await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chat._id}`)],
+                    [
+                        Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
+                        Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
+                    ],
+                    [Markup.button.callback('Видалити чат', 'delete_chat')],
+                    [Markup.button.callback('Викликати арбітраж', 'report')],
+                    [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
+                )
+            }catch (e) {
+                console.log("error: ", e)
             }
-
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&linkedChat=${customerChats[chatsKey].linkedChat}&statusStage=${customerChats[chatsKey].statusStage}&chatId=${chatId}`)],
-                [
-                    Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
-                    Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
-                ],
-                [Markup.button.callback('Видалити чат', 'delete_chat')],
-                [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
-            )
         }
 
         const clientChats = await chatService.getAllByClientId(user._id)
@@ -349,13 +353,18 @@ bot.hears('Мої чати', async (ctx)=>{
             await sendMessageWithKeyboard(chatId, "Писали ви :")
 
         for (let chatsKey in clientChats) {
-            const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
-            await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chatId}`)],
-                [Markup.button.callback('Видалити чат', 'delete_chat')],
-                [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
-            )
+            try{
+                const advertisement = await advertisementService.getById(clientChats[chatsKey].advertisementId)
+                const chat = await chatService.getByRoom(clientChats[chatsKey].room)
+                await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&linkedChat=${clientChats[chatsKey].linkedChat}&statusStage=${clientChats[chatsKey].statusStage}&$chatId=${chat._id}`)],
+                    [Markup.button.callback('Видалити чат', 'delete_chat')],
+                    [Markup.button.callback('Викликати арбітраж', 'report')],
+                    [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
+                )
+            }catch (e) {
+                console.log("error: ", e)
+            }
         }
     }catch (e){
         console.log('error: ', e)
@@ -666,16 +675,21 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
     }
 
     for (let chatsKey in chats) {
-        await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-            Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chatId}`)],
-            [
-                Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
-                Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
-            ],
-            [Markup.button.callback('Видалити чат', 'delete_chat')],
-            [Markup.button.callback('Викликати арбітраж', 'report')],
-            [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
-        )
+        try{
+            const chat = await chatService.getByRoom(chats[chatsKey].room)
+            await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&linkedChat=${chats[chatsKey].linkedChat}&statusStage=${chats[chatsKey].statusStage}&chatId=${chat._id}`)],
+                [
+                    Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
+                    Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
+                ],
+                [Markup.button.callback('Видалити чат', 'delete_chat')],
+                [Markup.button.callback('Викликати арбітраж', 'report')],
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}`)]])
+            )
+        }catch (e) {
+            console.log("error: ", e)
+        }
     }
 
 

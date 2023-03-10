@@ -172,6 +172,16 @@ class chatService{
         return chats
     }
 
+    async getByRoom(room){
+        try{
+            const chat = await Chat.findOne({room})
+
+            return chat
+        }catch (e) {
+            console.log("error: ", e)
+        }
+    }
+
 }
 
 module.exports = new chatService()

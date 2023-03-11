@@ -36,7 +36,7 @@ bot.hears('Канали', async (ctx)=>{
        const accessToMenu = await userController.accessToMenu(chatId)
 
        if(user.isBlocked || !accessToMenu){
-           return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
+           return await sendMessageWithKeyboard(chatId, 'У вас немає доступу!')
        }
 
        const team = await teamService.findByTeamId(user.teamId)
@@ -61,7 +61,7 @@ bot.hears('Мої оголошення', async (ctx)=> {
         const accessToMenu = await userController.accessToMenu(chatId)
 
         if(user.isBlocked || !accessToMenu){
-            return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
+            return await sendMessageWithKeyboard(chatId, 'У вас немає доступу!')
         }
 
         const advertisements = await advertisementService.getAllByTelegramId(chatId)
@@ -94,7 +94,7 @@ bot.hears('Додати оголошення', async (ctx)=> {
         const accessToMenu = await userController.accessToMenu(chatId)
 
         if(user.isBlocked || !accessToMenu){
-            return await sendMessageWithKeyboard(ctx.update.message.from.id, 'У вас немає доступу!')
+            return await sendMessageWithKeyboard(chatId, 'У вас немає доступу!')
         }
 
         await sendMessageWithKeyboard(chatId, "...")
@@ -203,7 +203,7 @@ bot.action('send_rate_request', async (ctx)=> {
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Запропонувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Відповісти`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
+                Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')
             ])
         )
@@ -794,10 +794,6 @@ async function showAdvertisement(advertisementId, chatId){
 
 
 
-}
-
-async function openChat(chatId, url){
-    await bot.telegram.open(url)
 }
 
         // SERVER \\

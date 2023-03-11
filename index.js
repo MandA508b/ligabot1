@@ -249,7 +249,10 @@ bot.action('accept_rate', async (ctx)=> {
                 Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`),
             ])
         )
-        console.log(`${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
+        console.log(`${process.env.CHAT_URL}/chat?name=author&room=${chat.room}\n
+        &advertisementId=${advertisement._id}\n
+        &statusStage=${advertisement.statusStage}\n
+        &chatId=${chat._id}`)
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
             ])

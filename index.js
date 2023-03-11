@@ -233,9 +233,7 @@ bot.action('accept_rate', async (ctx)=> {
 
         if(!advertisement || !requestRateNumber)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
 
-        console.log(requestRateNumber, advertisement._id)
         const requestRate = await requestRateService.findByNumber(requestRateNumber, advertisement._id)
-        console.log({requestRate})
 
         if(!requestRate)return await sendMessageWithKeyboard(chatId, "Щось пішло не так!")
         let chat = await chatService.findById(requestRate.chatId)
@@ -245,17 +243,15 @@ bot.action('accept_rate', async (ctx)=> {
 
         //delete requestRate
         await requestRateService.deleteByNumber(requestRateNumber, advertisement._id)
-        console.log("chatId: ", chat._id)
-        console.log("chat: ",chat)
         chat = await chatService.acceptedToTrue(chat._id)
 
         await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}`),
+                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`),
             ])
         )
 
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}`)
+                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
             ])
         )
 

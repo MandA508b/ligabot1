@@ -251,7 +251,7 @@ bot.action('accept_rate', async (ctx)=> {
         )
         console.log(`${process.env.CHAT_URL}/chat?name=author&room=${chat.room}\n
         &advertisementId=${advertisement._id}\n
-        &linkedChat=${customerChats[chatsKey].linkedChat}\n
+        &linkedChat=${advertisement.linkedChat}\n
         &statusStage=${advertisement.statusStage}\n
         &chatId=${chat._id}`)
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([

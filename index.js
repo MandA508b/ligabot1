@@ -201,7 +201,7 @@ bot.action('send_rate_request', async (ctx)=> {
         }
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
-
+        console.log(`${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
         await ctx.telegram.sendMessage(userClient.telegramId,`Запропонувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
                 Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')

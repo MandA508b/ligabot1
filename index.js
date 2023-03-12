@@ -112,7 +112,7 @@ bot.hears('Додати оголошення', async (ctx)=> {
 bot.action('create_chat', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const userId = userService.getUserByTelegramId(chatId)
+        const userId = await userService.getUserByTelegramId(chatId)
         console.log({userId})
 
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
@@ -178,7 +178,7 @@ bot.action('create_chat', async (ctx)=> {
 bot.action('send_rate_request', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const userId = userService.getUserByTelegramId(chatId)
+        const userId = await userService.getUserByTelegramId(chatId)
         console.log({userId})
 
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
@@ -229,7 +229,7 @@ bot.action('cancel_action', async (ctx)=> {
 bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        const userId = userService.getUserByTelegramId(chatId)
+        const userId = await userService.getUserByTelegramId(chatId)
         console.log({userId})
 
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1))
@@ -305,7 +305,7 @@ bot.action('cancel_rate', async (ctx)=> {
 bot.hears('Мої чати', async (ctx)=>{
     try{
         const chatId = ctx.update.message.from.id
-        const userId = userService.getUserByTelegramId(chatId)
+        const userId = await userService.getUserByTelegramId(chatId)
         console.log({userId})
 
         // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
@@ -689,7 +689,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
     for (let chatsKey in chats) {
         try{
             const chat = await chatService.getByRoom(chats[chatsKey].room)
-            const userId = userService.getUserByTelegramId(chatId)
+            const userId = await userService.getUserByTelegramId(chatId)
             console.log({userId})
 
             console.log(`${chats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId._id}`)

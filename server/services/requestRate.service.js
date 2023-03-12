@@ -10,7 +10,7 @@ class requestRateService{
          number =  (Number(requestsRate[0].number) + Number(1))
       }
 
-
+      console.log(number)
 
       const requestRate = await RequestRate.create({chatId, number, advertisementId, rate})
 

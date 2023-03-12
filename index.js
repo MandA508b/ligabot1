@@ -112,6 +112,7 @@ bot.hears('Додати оголошення', async (ctx)=> {
 bot.action('create_chat', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
+        const userId = userService.getUserByTelegramId(chatId)
 
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
         const advertisement = await advertisementService.getByNumber(number)
@@ -130,7 +131,7 @@ bot.action('create_chat', async (ctx)=> {
                 console.log(`${candidat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
                 const chat = await chatService.getByRoom(candidat.room)
                 return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
-                        [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)],
+                        [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId=${advertisement._id}&chatId=${userId}`)],
                         [Markup.button.callback('Видалити чат', 'delete_chat')]
                     ])
                 )
@@ -153,13 +154,13 @@ bot.action('create_chat', async (ctx)=> {
         }
         console.log(`${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
         await ctx.telegram.sendMessage(userClient.telegramId,`Відповісти на замовлення №${number}`, Markup.inlineKeyboard([
-            [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)],
+            [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${userId}`)],
             [Markup.button.callback('Видалити чат', 'delete_chat')]
             ])
         )
         console.log(`${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Чат #${chat.number}\n\nХтось хоче вам відповісти на замовлення №${number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
+                Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${userId}`)
             ],
             [
                 Markup.button.callback(`Бронювати`, `accept_reserve_advertisement`),
@@ -176,6 +177,7 @@ bot.action('create_chat', async (ctx)=> {
 bot.action('send_rate_request', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
+        const userId = userService.getUserByTelegramId(chatId)
 
         const number = Number(ctx.update.callback_query.message.text.split(' ')[1].split('\n')[0].slice(1))
         const advertisement = await advertisementService.getByNumber(number)
@@ -203,7 +205,7 @@ bot.action('send_rate_request', async (ctx)=> {
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
         console.log(`${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
         await ctx.telegram.sendMessage(userClient.telegramId,`Запропонувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&chatId=${chatId}`),// requestRAte, advertId
+                Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&chatId=${userId}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')
             ])
         )
@@ -225,6 +227,8 @@ bot.action('cancel_action', async (ctx)=> {
 bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
+        const userId = userService.getUserByTelegramId(chatId)
+
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1))
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))
@@ -245,12 +249,12 @@ bot.action('accept_rate', async (ctx)=> {
         chat = await chatService.acceptedToTrue(chat._id)
         console.log(`${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
         await ctx.telegram.sendMessage(userClient.telegramId,`Вашу ставку на замовлення №${advertisementNumber} одобрили`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`),
+                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=client&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${userId}`),
             ])
         )
         console.log(`${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
         await ctx.telegram.sendMessage(userCustomer.telegramId, `Ви одобрили ставку на замовлення №${advertisementNumber}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
+                Markup.button.webApp(`Перейти до чату`, `${process.env.CHAT_URL}/chat?name=author&room=${chat.room}&advertisementId=${advertisement._id}&chatId=${userId}`)
             ])
         )
 
@@ -298,6 +302,8 @@ bot.action('cancel_rate', async (ctx)=> {
 bot.hears('Мої чати', async (ctx)=>{
     try{
         const chatId = ctx.update.message.from.id
+        const userId = userService.getUserByTelegramId(chatId)
+
         // await ctx.telegram.deleteMessage(chatId, ctx.update.message.message_id)
 
         const userAuth =  await userService.getUserByTelegramId(chatId)
@@ -335,7 +341,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 const chat = await chatService.getByRoom(customerChats[chatsKey].room)
                 console.log(`${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)],
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId}`)],
                     [
                         Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                         Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
@@ -359,7 +365,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 const chat = await chatService.getByRoom(clientChats[chatsKey].room)
                 console.log(`${clientChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Листування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)],
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=client&room=${clientChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId}`)],
                     [Markup.button.callback('Видалити чат', 'delete_chat')],
                     [Markup.button.callback('Викликати арбітраж', 'report')],
                     [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review?teamId1=${user.teamId}`)]])
@@ -679,16 +685,18 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
     for (let chatsKey in chats) {
         try{
             const chat = await chatService.getByRoom(chats[chatsKey].room)
+            const userId = userService.getUserByTelegramId(chatId)
+
             console.log(`${chats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
             await bot.telegram.sendMessage(chatId, `Чат #${chats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${chatId}`)],
+                Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${chats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId}`)],
                 [
                     Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                     Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),
                 ],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}&chatId=${chatId}`)]])
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}&chatId=${userId}`)]])
             )
         }catch (e) {
             console.log("error: ", e)

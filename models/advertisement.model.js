@@ -53,8 +53,8 @@ const schema = new db.Schema({
         default: "open"
     },
     linkedChat: {
-        type: db.Schema.Types.ObjectId,
-        default: "000000000000000000000000"
+        type: Number,
+        default: 0
     },
     channelMessageId: {
         type: Number,

@@ -498,7 +498,7 @@ bot.action('reserve_advertisement', async (ctx)=> {
         let advertisement = await advertisementService.getByNumber(numberAdvertisement)
 
         const chat = await chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
-        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'reserved', chat._id)
+        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'reserved', chatId)
 
         bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
 

@@ -36,9 +36,7 @@ class UserController{// userData: [{userId: _id, updateData: {..data to update..
 
     async getUserByTelegramId(telegramId){
         try{
-            console.log("---------------",telegramId,"-----------")
             const user = await User.findOne({telegramId})
-            console.log("---------------",user._id,"-----------")
 
             return user
         }catch (e) {

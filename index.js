@@ -128,7 +128,7 @@ bot.action('create_chat', async (ctx)=> {
         const candidat = await chatService.getByClientIdAndAdvertisementId(userClient._id, advertisement._id)
         if(candidat){
             try{
-                console.log(`${candidat.room}&advertisementId=${advertisement._id}&chatId=${userId._id}`)
+                console.log(`${candidat.room}&advertisementId=${advertisement._id}&chatId=${chatId}`)
                 const chat = await chatService.getByRoom(candidat.room)
                 return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
                         [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId=${advertisement._id}&chatId=${userId._id}`)],
@@ -203,9 +203,9 @@ bot.action('send_rate_request', async (ctx)=> {
         }
 
         const chat = await chatService.create(advertisement._id, advertisement.userId, userClient._id, false)
-        console.log(`${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chat._id}`)
+        console.log(`${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&statusStage=${advertisement.statusStage}&chatId=${chatId}`)
         await ctx.telegram.sendMessage(userClient.telegramId,`Запропонувати ціну на замовлення №${number}`, Markup.inlineKeyboard([
-                Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&chatId=${userId._id}`),// requestRAte, advertId
+                Markup.button.webApp(`Запропонувати`, `${process.env.ADVERTISEMENT_CREATE_URL}/rate/?chatId=${chat._id}&advertisementId=${advertisement._id}&chatId=${chatId}`),// requestRAte, advertId
                 Markup.button.callback('Скасувати', 'cancel_action')
             ])
         )
@@ -696,7 +696,7 @@ async function showAllChatsByAdvertisementId(advertisementId, chatId){
                 ],
                 [Markup.button.callback('Видалити чат', 'delete_chat')],
                 [Markup.button.callback('Викликати арбітраж', 'report')],
-                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}&chatId=${userId._id}`)]])
+                [Markup.button.webApp('Позначити угоду як завершену успішно', `${process.env.ADVERTISEMENT_CREATE_URL}/review/teamId1=${user.teamId}&chatId=${chatId}`)]])
             )
         }catch (e) {
             console.log("error: ", e)

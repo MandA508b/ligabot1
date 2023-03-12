@@ -125,9 +125,9 @@ bot.action('create_chat', async (ctx)=> {
             return await sendMessageWithKeyboard(chatId, 'Ви не можете писати повідомлення самі собі !')
         }
         const candidat = await chatService.getByClientIdAndAdvertisementId(userClient._id, advertisement._id)
-        console.log(`${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId${advertisement._id}&chatId${chatId}`)
         if(candidat){
             try{
+                console.log(`${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId${advertisement._id}&chatId${chatId}`)
                 const chat = await chatService.getByRoom(candidat.room)
                 return await ctx.telegram.sendMessage(userClient.telegramId,`Ви вже відповідали на це замовлення\n\nВідповісти на замовлення №${number}`, Markup.inlineKeyboard([
                         [Markup.button.webApp(`Відповісти`, `${process.env.CHAT_URL}/chat?name=client&room=${candidat.room}&advertisementId${advertisement._id}&chatId${chatId}`)],

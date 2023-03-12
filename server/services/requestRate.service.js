@@ -4,7 +4,7 @@ const advertisementService = require('./advertisement.service')
 class requestRateService{
 
    async create(chatId, advertisementId, rate){
-      const requestsRate = await RequestRate.find().sort({number: 1})
+      const requestsRate = await RequestRate.find().sort({number: -1})
       let number = 1
       if(requestsRate[0]){
          number =  (Number(requestsRate[0].number) + Number(1))

@@ -345,7 +345,7 @@ bot.hears('Мої чати', async (ctx)=>{
                 const chat = await chatService.getByRoom(customerChats[chatsKey].room)
                 console.log(`${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId._id}`)
                 await bot.telegram.sendMessage(ctx.update.message.from.id, `Чат #${customerChats[chatsKey].number}\n\nЛистування щодо оголошення №${advertisement.number}`, Markup.inlineKeyboard([[
-                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${userId._id}`)],
+                    Markup.button.webApp(`Написати`, `${process.env.CHAT_URL}/chat?name=author&room=${customerChats[chatsKey].room}&advertisementId=${advertisement._id}&chatId=${customerChats[chatsKey].clientId}`)],
                     [
                         Markup.button.callback(`${buttonReserved}`, callbackButtonReserved),
                         Markup.button.callback(`${buttonFixed}`, callbackButtonFixed),

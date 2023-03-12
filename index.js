@@ -225,7 +225,6 @@ bot.action('cancel_action', async (ctx)=> {
 bot.action('accept_rate', async (ctx)=> {
     try{
         const chatId = ctx.update.callback_query.from.id
-        console.log({chatId})
         let requestRateNumber = Number(ctx.update.callback_query.message.text.split('\n')[0].split(' ')[1].slice(1))
 
         const advertisementNumber = Number(ctx.update.callback_query.message.text.split('\n')[1].split(' ')[10].slice(1))

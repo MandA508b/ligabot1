@@ -475,7 +475,7 @@ bot.action('fix_advertisement', async (ctx)=> {
         let advertisement = await advertisementService.getByNumber(numberAdvertisement)
 
         const chat = await chatService.getByNumberAndAdvertisementId(numberChat, advertisement._id)
-        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'fixed', chat._id)
+        advertisement = await advertisementService.switchStatusStage(advertisement._id, 'fixed', chatId)
 
         bot.telegram.deleteMessage(chatId, ctx.update.callback_query.message.message_id)
 
